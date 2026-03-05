@@ -80,6 +80,14 @@ on:
         description: "Deploy API Gateway"
         type: boolean
         default: false
+      bedrock_agent:
+        description: "Deploy Bedrock Agent"
+        type: boolean
+        default: false
+      bedrock_kb:
+        description: "Deploy Bedrock Knowledge Base"
+        type: boolean
+        default: false
 
 
       workspace:
@@ -157,6 +165,8 @@ jobs:
           [ "${{ inputs.ecs }}" == "true" ] && SERVICES="$SERVICES\"ecs\","
           [ "${{ inputs.sqs }}" == "true" ] && SERVICES="$SERVICES\"sqs\","
           [ "${{ inputs.apigw }}" == "true" ] && SERVICES="$SERVICES\"apigw\","
+          [ "${{ inputs.bedrock_agent }}" == "true" ] && SERVICES="$SERVICES\"bedrock-agent\","
+          [ "${{ inputs.bedrock_kb }}" == "true" ] && SERVICES="$SERVICES\"bedrock-kb\","
 
           
           SERVICES="${SERVICES%,}]"

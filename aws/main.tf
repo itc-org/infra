@@ -242,3 +242,22 @@ module "apigw" {
   count = contains(var.services_to_deploy, "apigw") ? var.apigw_count : 0
 
 }
+
+
+################################
+# BEDROCK AGENT
+################################
+
+module "bedrock_agent" {
+  source   = "./modules/bedrock/agent"
+  for_each = contains(var.services_to_deploy, "bedrock-agent") ? { agent = true } : {}
+}
+
+################################
+# BEDROCK KNOWLEDGE BASE
+################################
+
+module "bedrock_kb" {
+  source   = "./modules/bedrock/knowledgebase"
+  for_each = contains(var.services_to_deploy, "bedrock-kb") ? { kb = true } : {}
+}
