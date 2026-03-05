@@ -72,6 +72,16 @@ on:
         description: "Deploy redshift"
         type: boolean
         default: false
+      sqs:
+        description: "Deploy SQS"
+        type: boolean
+        default: false
+      apigw:
+        description: "Deploy API Gateway"
+        type: boolean
+        default: false
+
+
       workspace:
         description: "Workspace"
         required: true
@@ -145,6 +155,10 @@ jobs:
           [ "${{ inputs.quicksight }}" == "true" ] && SERVICES="$SERVICES\"quicksight\","
           [ "${{ inputs.redshift }}" == "true" ] && SERVICES="$SERVICES\"redshift\","
           [ "${{ inputs.ecs }}" == "true" ] && SERVICES="$SERVICES\"ecs\","
+          [ "${{ inputs.sqs }}" == "true" ] && SERVICES="$SERVICES\"sqs\","
+          [ "${{ inputs.apigw }}" == "true" ] && SERVICES="$SERVICES\"apigw\","
+
+          
           SERVICES="${SERVICES%,}]"
           echo "services=$SERVICES" >> $GITHUB_OUTPUT
 

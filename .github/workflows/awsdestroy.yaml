@@ -82,6 +82,14 @@ on:
         description: "Destroy redshift"
         type: boolean
         default: false
+      sqs:
+        description: "Destroy SQS"
+        type: boolean
+        default: false
+      apigw:
+        description: "Destroy API Gateway"
+        type: boolean
+        default: false
 
 permissions:
   id-token: write
@@ -142,6 +150,8 @@ jobs:
           [ "${{ inputs.quicksight }}" == "true" ] && SERVICES="$SERVICES\"quicksight\","
           [ "${{ inputs.redshift }}" == "true" ] && SERVICES="$SERVICES\"redshift\","
           [ "${{ inputs.ecs }}" == "true" ] && SERVICES="$SERVICES\"ecs\","
+          [ "${{ inputs.sqs }}" == "true" ] && SERVICES="$SERVICES\"sqs\","
+          [ "${{ inputs.apigw }}" == "true" ] && SERVICES="$SERVICES\"apigw\","
           SERVICES="${SERVICES%,}]"
 
           if [ "$SERVICES" == "]" ]; then

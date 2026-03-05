@@ -21,9 +21,9 @@ locals {
     contains(var.services_to_deploy, "ec2") ||
     contains(var.services_to_deploy, "eks") ||
     contains(var.services_to_deploy, "ecs") ||
-    contains(var.services_to_deploy, "lambda") ||
+    #contains(var.services_to_deploy, "lambda") ||  #enable if lambda should be created in vpc
     contains(var.services_to_deploy, "rds") ||
-    contains(var.services_to_deploy, "opensearch") ||
+    #contains(var.services_to_deploy, "opensearch") ||
     contains(var.services_to_deploy, "redshift")
   )
 }
@@ -48,11 +48,11 @@ module "ec2" {
   source   = "./modules/ec2"
   for_each = contains(var.services_to_deploy, "ec2") ? { ec2 = true } : {}
 
-  subnet_ids    = module.vpc["network"].public_subnet_ids
-  ami           = var.ec2_ami
-  instance_type = var.ec2_instance_type
-  key_name      = var.key_name
-  instance_count     = var.ec2_instance_count  
+  subnet_ids     = module.vpc["network"].public_subnet_ids
+  ami            = var.ec2_ami
+  instance_type  = var.ec2_instance_type
+  key_name       = var.key_name
+  instance_count = var.ec2_instance_count
 }
 
 
@@ -103,7 +103,7 @@ module "lambda" {
 module "ecr" {
   source   = "./modules/ecr"
   for_each = contains(var.services_to_deploy, "ecr") ? { ecr = true } : {}
-  
+
 
 }
 
@@ -153,9 +153,10 @@ module "glue" {
 ################################
 
 module "opensearch" {
-  source   = "./modules/opensearch"
-  for_each = contains(var.services_to_deploy, "opensearch") ? { opensearch = true } : {}  
-  instance_type = var.opensearh_instance_type  
+  source        = "./modules/opensearch"
+  for_each      = contains(var.services_to_deploy, "opensearch") ? { opensearch = true } : {}
+  instance_type = var.opensearh_instance_type
+  region        = var.aws_region
 }
 
 ################################
@@ -212,4 +213,32 @@ module "ecs" {
   # subnet_ids      = module.vpc["network"].public_subnet_ids
   # container_image = var.ecs_container_image
   # container_port  = 80    
+}
+
+
+################################
+# SQS MODULE
+################################
+
+module "sqs" {
+  source   = "./modules/sqs"
+  for_each = contains(var.services_to_deploy, "sqs") ? { sqs = true } : {}
+
+  queue_name                 = var.sqs_queue_name
+  delay_seconds              = var.sqs_delay_seconds
+  max_message_size           = var.sqs_max_message_size
+  message_retention_seconds  = var.sqs_message_retention_seconds
+  visibility_timeout_seconds = var.sqs_visibility_timeout_seconds
+}
+
+
+################################
+# API GATEWAY MODULE
+################################
+
+module "apigw" {
+  source = "./modules/apigw"
+
+  count = contains(var.services_to_deploy, "apigw") ? var.apigw_count : 0
+
 }

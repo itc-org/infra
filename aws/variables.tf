@@ -76,7 +76,7 @@ variable "ec2_instance_count" {
 }
 
 variable "opensearh_instance_type" {
-  
+
 }
 
 
@@ -91,4 +91,32 @@ variable "lambda_runtime" {
 
 variable "lambda_handler" {
   type = string
+}
+
+
+##SQS##
+variable "sqs_queue_name" {
+  type = string
+}
+
+variable "sqs_delay_seconds" {
+  type = number
+}
+
+variable "sqs_max_message_size" {
+  type = number
+}
+
+variable "sqs_message_retention_seconds" {
+  type = number
+}
+
+variable "sqs_visibility_timeout_seconds" {
+  type = number
+}
+
+##APIGW##
+variable "apigw_count" {
+  type = number
+
 }

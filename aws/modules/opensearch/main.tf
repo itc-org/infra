@@ -4,12 +4,14 @@ resource "random_string" "suffix" {
   upper   = false
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_opensearch_domain" "this" {
   domain_name    = "terraform-opensearch-${random_string.suffix.result}"
   engine_version = "OpenSearch_2.11"
 
   cluster_config {
-    instance_type = var.instance_type
+    instance_type  = var.instance_type
     instance_count = 1
   }
 
@@ -21,10 +23,12 @@ resource "aws_opensearch_domain" "this" {
   access_policies = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect    = "Allow"
-      Principal = "*"
-      Action    = "es:*"
-      Resource  = "*"
+      Effect = "Allow"
+      Principal = {
+        AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+      }
+      Action = "es:*"
+      Resource = "arn:aws:es:${var.region}:${data.aws_caller_identity.current.account_id}:domain/terraform-opensearch-${random_string.suffix.result}/*"
     }]
   })
 }
