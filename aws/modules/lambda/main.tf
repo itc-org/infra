@@ -62,6 +62,13 @@ resource "aws_iam_role_policy_attachment" "dynamodb" {
 }
 
 resource "aws_lambda_function" "this" {
+  depends_on = [
+    aws_iam_role_policy_attachment.logs,
+    aws_iam_role_policy_attachment.s3,
+    aws_iam_role_policy_attachment.secrets,
+    aws_iam_role_policy_attachment.dynamodb
+  ]
+
   function_name = "terraform-lambda-${random_string.suffix.result}"
 
   role    = aws_iam_role.lambda_role.arn
