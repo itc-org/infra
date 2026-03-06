@@ -136,7 +136,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform Init
-        run: terraform init -reconfigure
+        run: terraform init
 
       ########################################
       # Build services list
