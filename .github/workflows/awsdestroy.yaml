@@ -18,9 +18,9 @@ on:
         required: false
         type: choice
         options:
-         - datascience
-         - devops
-         - bigdata
+         - ds
+         - do
+         - bd
          - pmo
 
       ec2:

@@ -37,7 +37,7 @@ resource "aws_opensearchserverless_collection" "vector" {
 ################################
 
 resource "aws_bedrockagent_knowledge_base" "this" {
-  name     = "terraform-${terraform.workspace}-${random_string.suffix.result}"
+  name     = var.kb_name
   role_arn = aws_iam_role.bedrock_kb_role.arn
 
   knowledge_base_configuration {

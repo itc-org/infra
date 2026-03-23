@@ -14,3 +14,7 @@
 #   type = number
 #   default = 80
 # }
+
+variable "ecs_name" {
+  
+}

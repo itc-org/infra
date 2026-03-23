@@ -13,7 +13,7 @@ resource "random_string" "suffix" {
 ########################################
 
 resource "aws_security_group" "redshift_sg" {
-  name        = "terraform_redshift_sg_${random_string.suffix.result}"
+  name        = "tf-${terraform.workspace}-rs-sg-${random_string.suffix.result}"
   description = "Redshift security group"
   vpc_id      = var.vpc_id
 
@@ -38,7 +38,7 @@ resource "aws_security_group" "redshift_sg" {
 ########################################
 
 resource "aws_redshift_subnet_group" "this" {
-  name       = "terraform-redshift-subnet-group-${random_string.suffix.result}"
+  name       = "tf-${terraform.workspace}-rs-subnet-${random_string.suffix.result}"
   subnet_ids = var.subnet_ids
 }
 
@@ -47,7 +47,7 @@ resource "aws_redshift_subnet_group" "this" {
 ########################################
 
 resource "aws_iam_role" "redshift_role" {
-  name = "terraform_redshift_role_${random_string.suffix.result}"
+  name = "tf-${terraform.workspace}-rs-role-${random_string.suffix.result}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -71,7 +71,7 @@ resource "aws_iam_role_policy_attachment" "redshift_s3_attach" {
 ########################################
 
 resource "aws_redshift_cluster" "this" {
-  cluster_identifier = "terraform-redshift-${random_string.suffix.result}"
+  cluster_identifier = "tf-${terraform.workspace}-rs-${random_string.suffix.result}"
   database_name      = var.database_name
   master_username    = var.master_username
   master_password    = var.master_password

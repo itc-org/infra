@@ -6,8 +6,8 @@ ecs_container_image = "nginx:latest"
 
 opensearh_instance_type = "t3.small.search"
 
-notebook_instance_type = "ml.t3.micro"
-
+##SageMaker##
+notebook_instance_type = "ml.t3.medium"
 
 
 ##EC2##

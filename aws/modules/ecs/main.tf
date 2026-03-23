@@ -9,7 +9,7 @@ resource "random_string" "suffix" {
 ################################
 
 resource "aws_ecs_cluster" "this" {
-  name = "terraform-ecs-${random_string.suffix.result}"
+  name = var.ecs_name
 }
 
 # ################################

@@ -41,9 +41,10 @@ on:
         required: true
         type: choice
         options:        
-          - datascience
-          - devops
-          - bigdata
+          - ds
+          - do
+          - bd
+          - pmo
 
 permissions:
   contents: read

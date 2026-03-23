@@ -1,11 +1,6 @@
-resource "random_string" "suffix" {
-  length  = 5
-  special = false
-  upper   = false
-}
 
 resource "aws_api_gateway_rest_api" "this" {
-  name        = "terraform-${terraform.workspace}-${random_string.suffix.result}"
+  name        = var.name
   description = "Terraform API Gateway for workspace ${terraform.workspace}"
 }
 

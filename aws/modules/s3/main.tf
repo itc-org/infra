@@ -5,10 +5,10 @@ resource "random_string" "suffix" {
 }
 
 resource "aws_s3_bucket" "this" {
-  bucket = "terraform-s3-${random_string.suffix.result}"
+  bucket = "tf-${terraform.workspace}-s3-${random_string.suffix.result}"
 
   tags = {
-    Name = "terraform-s3-${random_string.suffix.result}"
+    Name = "tf-${terraform.workspace}-s3-${random_string.suffix.result}"
   }
 }
 

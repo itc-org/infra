@@ -12,6 +12,12 @@ terraform {
   }
 }
 
+resource "random_string" "suffix" {
+  length  = 5
+  special = false
+  upper   = false
+}
+
 ################################
 # NETWORK AUTO-TRIGGER LOGIC
 ################################
@@ -48,6 +54,8 @@ module "ec2" {
   source   = "./modules/ec2"
   for_each = contains(var.services_to_deploy, "ec2") ? { ec2 = true } : {}
 
+  ec2_name = "tf-${terraform.workspace}-ec2-${random_string.suffix.result}"
+  sg_name = "tf-${terraform.workspace}-sg-${random_string.suffix.result}"
   subnet_ids     = module.vpc["network"].public_subnet_ids
   ami            = var.ec2_ami
   instance_type  = var.ec2_instance_type
@@ -102,6 +110,7 @@ module "lambda" {
 
 module "ecr" {
   source   = "./modules/ecr"
+  ecr_name = "tf-${terraform.workspace}-ecr-${random_string.suffix.result}"
   for_each = contains(var.services_to_deploy, "ecr") ? { ecr = true } : {}
 
 
@@ -145,7 +154,13 @@ module "codepipeline" {
 
 module "glue" {
   source   = "./modules/glue"
-  for_each = contains(var.services_to_deploy, "glue") ? { glue = true } : {}
+  for_each = contains(var.services_to_deploy, "glue") ? { glue = true } : {}  
+  s3_bucket = "tf-${terraform.workspace}-s3-${random_string.suffix.result}"
+  iam_role = "tf-${terraform.workspace}-gluerole-${random_string.suffix.result}"
+  iam_policy = "tf-${terraform.workspace}-gluepolicy-${random_string.suffix.result}"
+  catalog = "tf-${terraform.workspace}-catalog-${random_string.suffix.result}"
+  crawler = "tf-${terraform.workspace}-crawler-${random_string.suffix.result}"
+  job = "tf-${terraform.workspace}-job-${random_string.suffix.result}"
 }
 
 ################################
@@ -207,6 +222,7 @@ module "redshift" {
 module "ecs" {
   source   = "./modules/ecs"
   for_each = contains(var.services_to_deploy, "ecs") ? { ecs = true } : {}
+  ecs_name = "tf-${terraform.workspace}-ecs-${random_string.suffix.result}"
 
   ##use the following when creating task definition or service
   # vpc_id          = module.vpc["network"].vpc_id
@@ -238,8 +254,9 @@ module "sqs" {
 
 module "apigw" {
   source = "./modules/apigw"
-
+  name = "tf-${terraform.workspace}-apigw-${random_string.suffix.result}"
   count = contains(var.services_to_deploy, "apigw") ? var.apigw_count : 0
+
 
 }
 
@@ -250,8 +267,10 @@ module "apigw" {
 
 module "bedrock_agent" {
   source   = "./modules/bedrock/agent"
+  agent_name = "tf-${terraform.workspace}-br-${random_string.suffix.result}"
   for_each = contains(var.services_to_deploy, "bedrock-agent") ? { agent = true } : {}
 }
+
 
 ################################
 # BEDROCK KNOWLEDGE BASE
@@ -259,5 +278,6 @@ module "bedrock_agent" {
 
 module "bedrock_kb" {
   source   = "./modules/bedrock/knowledgebase"
+  kb_name = "tf-${terraform.workspace}-kb-${random_string.suffix.result}"
   for_each = contains(var.services_to_deploy, "bedrock-kb") ? { kb = true } : {}
 }

@@ -7,7 +7,7 @@ resource "random_string" "suffix" {
 data "aws_caller_identity" "current" {}
 
 resource "aws_opensearch_domain" "this" {
-  domain_name    = "terraform-opensearch-${random_string.suffix.result}"
+  domain_name    = "tf-${terraform.workspace}-os-${random_string.suffix.result}"
   engine_version = "OpenSearch_2.11"
 
   cluster_config {

@@ -5,7 +5,7 @@ resource "random_string" "suffix" {
 }
 
 resource "aws_iam_role" "sagemaker_execution" {
-  name = "terraform-sagemaker-role-${random_string.suffix.result}"
+  name = "tf-${terraform.workspace}-sm-role-${random_string.suffix.result}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -25,7 +25,7 @@ resource "aws_iam_role_policy_attachment" "sagemaker_full_access" {
 }
 
 resource "aws_sagemaker_notebook_instance" "this" {
-  name          = "terraform-notebook-${random_string.suffix.result}"
+  name          = "tf-${terraform.workspace}-notebook-${random_string.suffix.result}"
   role_arn      = aws_iam_role.sagemaker_execution.arn
   instance_type = var.notebook_instance_type
 

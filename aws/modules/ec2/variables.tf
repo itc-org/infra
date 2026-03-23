@@ -17,3 +17,11 @@ variable "key_name" {
 variable "instance_count" {
   type = number
 }
+
+variable "ec2_name" {
+  
+}
+
+variable "sg_name" {
+  
+}

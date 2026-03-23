@@ -17,7 +17,7 @@ resource "aws_vpc" "this" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "terraform-vpc-${random_string.suffix.result}"
+    Name = "tf-${terraform.workspace}-vpc-${random_string.suffix.result}"
   }
 }
 
@@ -29,7 +29,7 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.this.id
 
   tags = {
-    Name = "terraform-igw-${random_string.suffix.result}"
+    Name = "tf-${terraform.workspace}-igw-${random_string.suffix.result}"
   }
 }
 
@@ -46,7 +46,7 @@ resource "aws_subnet" "public" {
   availability_zone       = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name = "terraform-public-${count.index}-${random_string.suffix.result}"
+    Name = "tf-${terraform.workspace}-pub-${count.index}-${random_string.suffix.result}"
   }
 }
 
@@ -62,7 +62,7 @@ resource "aws_subnet" "private" {
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name = "terraform-private-${count.index}-${random_string.suffix.result}"
+    Name = "tf-${terraform.workspace}-prv-${count.index}-${random_string.suffix.result}"
   }
 }
 
@@ -79,7 +79,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "terraform-public-rt-${random_string.suffix.result}"
+    Name = "tf-${terraform.workspace}-pub-rt-${random_string.suffix.result}"
   }
 }
 

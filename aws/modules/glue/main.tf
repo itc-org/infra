@@ -1,19 +1,10 @@
-########################################
-# Random Suffix
-########################################
-
-resource "random_string" "suffix" {
-  length  = 4
-  special = false
-  upper   = false
-}
 
 ########################################
 # Single S3 Bucket
 ########################################
 
 resource "aws_s3_bucket" "data_bucket" {
-  bucket = "terraform-data-${random_string.suffix.result}"
+  bucket = var.s3_bucket
 }
 
 ########################################
@@ -21,7 +12,7 @@ resource "aws_s3_bucket" "data_bucket" {
 ########################################
 
 resource "aws_iam_role" "glue_role" {
-  name = "terraform_glue_role_${random_string.suffix.result}"
+  name = var.iam_role
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -46,7 +37,7 @@ resource "aws_iam_role_policy_attachment" "glue_service_role" {
 ########################################
 
 resource "aws_iam_policy" "glue_s3_policy" {
-  name = "terraform_glue_s3_policy_${random_string.suffix.result}"
+  name = var.iam_policy
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -75,7 +66,7 @@ resource "aws_iam_role_policy_attachment" "glue_s3_attach" {
 ########################################
 
 resource "aws_glue_catalog_database" "this" {
-  name = "terraform_glue_db_${random_string.suffix.result}"
+  name = var.catalog
 }
 
 ########################################
@@ -83,7 +74,7 @@ resource "aws_glue_catalog_database" "this" {
 ########################################
 
 resource "aws_glue_crawler" "this" {
-  name          = "terraform_glue_crawler_${random_string.suffix.result}"
+  name          = var.crawler
   role          = aws_iam_role.glue_role.arn
   database_name = aws_glue_catalog_database.this.name
 
@@ -97,7 +88,7 @@ resource "aws_glue_crawler" "this" {
 ########################################
 
 resource "aws_glue_job" "this" {
-  name     = "terraform_glue_job_${random_string.suffix.result}"
+  name     = var.job
   role_arn = aws_iam_role.glue_role.arn
 
   command {

@@ -69,7 +69,7 @@ resource "aws_lambda_function" "this" {
     aws_iam_role_policy_attachment.dynamodb
   ]
 
-  function_name = "terraform-lambda-${random_string.suffix.result}"
+  function_name = "tf-${terraform.workspace}-lambda-${random_string.suffix.result}"
 
   role    = aws_iam_role.lambda_role.arn
   runtime = var.runtime

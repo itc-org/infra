@@ -96,9 +96,9 @@ on:
         default: "aws1"
         type: choice
         options:
-          - datascience
-          - devops
-          - bigdata
+          - ds
+          - do
+          - bd
           - pmo
 
 

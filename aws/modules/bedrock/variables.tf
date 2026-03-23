@@ -1,7 +1,4 @@
-variable "agent_name" {
-  description = "Name of the Bedrock agent"
-  type        = string
-}
+
 
 variable "foundation_model" {
   description = "Foundation model for the agent"

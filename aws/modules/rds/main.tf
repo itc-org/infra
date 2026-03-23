@@ -9,7 +9,7 @@ resource "random_string" "suffix" {
 ################################
 
 resource "aws_security_group" "this" {
-  name   = "terraform-rds-sg-${random_string.suffix.result}"
+  name   = "tf-${terraform.workspace}-rds-sg-${random_string.suffix.result}"
   vpc_id = var.vpc_id
 
   ingress {
@@ -32,7 +32,7 @@ resource "aws_security_group" "this" {
 ################################
 
 resource "aws_db_subnet_group" "this" {
-  name       = "terraform-rds-subnet-${random_string.suffix.result}"
+  name       = "tf-${terraform.workspace}-rds-subnet-${random_string.suffix.result}"
   subnet_ids = var.private_subnet_ids
 }
 
@@ -41,7 +41,7 @@ resource "aws_db_subnet_group" "this" {
 ################################
 
 resource "aws_db_instance" "this" {
-  identifier             = "terraform-rds-${random_string.suffix.result}"
+  identifier             = "tf-${terraform.workspace}-rds-${random_string.suffix.result}"
   engine                 = var.rds_engine
   instance_class         = "db.t3.micro"
   allocated_storage      = 20

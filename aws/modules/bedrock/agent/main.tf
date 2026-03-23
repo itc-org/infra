@@ -20,7 +20,7 @@ resource "aws_iam_role" "bedrock_agent_role" {
 }
 
 resource "aws_bedrockagent_agent" "this" {
-  agent_name = "terraform-${terraform.workspace}-${random_string.suffix.result}"
+  agent_name = var.agent_name
 
   foundation_model        = "anthropic.claude-3-sonnet-20240229-v1:0"
   agent_resource_role_arn = aws_iam_role.bedrock_agent_role.arn

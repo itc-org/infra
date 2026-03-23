@@ -5,7 +5,7 @@ resource "random_string" "suffix" {
 }
 
 resource "aws_sqs_queue" "this" {
-  name = "terraform-${var.queue_name}-${random_string.suffix.result}"
+  name = "tf-${terraform.workspace}-sqs-${random_string.suffix.result}"
 
   delay_seconds               = var.delay_seconds  
   max_message_size            = var.max_message_size

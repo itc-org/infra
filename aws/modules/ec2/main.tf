@@ -1,12 +1,12 @@
-################################
-# Random suffix
-################################
+# ################################
+# # Random suffix
+# ################################
 
-resource "random_string" "suffix" {
-  length  = 5
-  special = false
-  upper   = false
-}
+# resource "random_string" "suffix" {
+#   length  = 5
+#   special = false
+#   upper   = false
+# }
 
 ################################
 # Security Group
@@ -17,7 +17,7 @@ data "aws_subnet" "selected" {
 }
 
 resource "aws_security_group" "this" {
-  name   = "terraform-ec2-sg-${random_string.suffix.result}"
+  name   = var.sg_name
   vpc_id = data.aws_subnet.selected.vpc_id
 
   ingress {
@@ -35,7 +35,7 @@ resource "aws_security_group" "this" {
   }
 
   tags = {
-    Name = "terraform-ec2-sg-${random_string.suffix.result}"
+    Name = var.sg_name
   }
 }
 
@@ -54,6 +54,6 @@ resource "aws_instance" "this" {
   key_name = var.key_name 
 
   tags = {
-    Name = "terraform-ec2-${random_string.suffix.result}"
+    Name = var.ec2_name
   }
 }

@@ -5,9 +5,9 @@ resource "random_string" "suffix" {
 }
 
 resource "aws_sns_topic" "this" {
-  name = "terraform-sns-${random_string.suffix.result}"
+  name = "tf-${terraform.workspace}-sns-${random_string.suffix.result}"
 
   tags = {
-    Name = "terraform-sns-${random_string.suffix.result}"
+    Name = "tf-${terraform.workspace}-sns-${random_string.suffix.result}"
   }
 }

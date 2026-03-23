@@ -1,11 +1,6 @@
-resource "random_string" "suffix" {
-  length  = 5
-  special = false
-  upper   = false
-}
 
 resource "aws_ecr_repository" "this" {
-  name = "terraform-ecr-${random_string.suffix.result}"
+  name = var.ecr_name
 
   force_delete = true
 }
