@@ -18,6 +18,7 @@ on:
         required: false
         type: choice
         options:
+         - java
          - ds
          - do
          - bd

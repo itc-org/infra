@@ -100,6 +100,7 @@ on:
         default: "aws1"
         type: choice
         options:
+          - java
           - ds
           - do
           - bd
