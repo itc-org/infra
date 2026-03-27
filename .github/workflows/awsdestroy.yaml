@@ -27,6 +27,11 @@ on:
         description: "Destroy EC2"
         type: boolean
         default: false
+
+      eks:
+        description: "Destroy eks"
+        type: boolean
+        default: false
       s3:
         description: "Destroy S3"
         type: boolean
@@ -147,6 +152,7 @@ jobs:
         run: |
           SERVICES="["
           [ "${{ inputs.ec2 }}" == "true" ] && SERVICES="$SERVICES\"ec2\","
+          [ "${{ inputs.eks }}" == "true" ] && SERVICES="$SERVICES\"eks\","
           [ "${{ inputs.s3 }}" == "true" ] && SERVICES="$SERVICES\"s3\","
           [ "${{ inputs.rds }}" == "true" ] && SERVICES="$SERVICES\"rds\","
           [ "${{ inputs.ecr }}" == "true" ] && SERVICES="$SERVICES\"ecr\","

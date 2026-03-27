@@ -13,7 +13,7 @@ notebook_instance_type = "ml.t3.medium"
 ##EC2##
 vpc_cidr_block    = "10.0.0.0/16"
 ec2_ami           = "ami-0ba0c1a358147d1a8"
-ec2_instance_type = "t3.micro"
+ec2_instance_type = "t3.medium"
 key_name          = "terraform-keypair"
 
 

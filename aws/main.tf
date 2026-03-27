@@ -63,6 +63,18 @@ module "ec2" {
   instance_count = var.ec2_instance_count
 }
 
+################################
+# EKS MODULE
+################################
+
+module "eks" {
+  source   = "./modules/eks"
+  for_each = contains(var.services_to_deploy, "eks") ? { eks = true } : {}
+
+  name       = "tf-${terraform.workspace}-eks-${random_string.suffix.result}"
+  vpc_id     = module.vpc["network"].vpc_id
+  subnet_ids = module.vpc["network"].public_subnet_ids
+}
 
 ################################
 # S3 MODULE
