@@ -1,0 +1,6 @@
+apiVersion: v2
+appVersion: 0.0.2
+description: Load testing framework based on github.com/Rbillon59/jmeter-k8s-starterkit
+name: jmeter-k8s-starterkit
+type: application
+version: 0.0.3
