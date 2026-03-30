@@ -6,31 +6,45 @@ variable "services_to_deploy" {
 }
 
 
-
-variable "location" {
-  description = "location"
-  type        = string
-}
-
-
+#databricks
 variable "databricks_sku" {
   description = "Databricks SKU (standard or premium)"
   type        = string
   default     = "standard"
 }
 
+variable "managed_resource_group_name" {}
+variable "databricks_name" {}
+variable "databricks_public_network_access_enabled" {}
 
-variable "sql_admin_login" {
-  description = "Synapse SQL admin username"
-  type        = string
-}
+#datafactory
+variable "datafactory_name" {}
+
+
+#Keyvault
+
+variable "key_vault_name" {}
+variable "tenant_id" {}
+variable "key_vault_sku_name" {}
+
+
+
+
+
+#Storage Account (datalake)
+variable "storage_account_name" {}
+variable "filesystem_name" {}
+variable "datalake_tier" {}
+variable "datlake_redundancy" {}
+
+
+
+variable "sql_admin_login" {}
 
 variable "sql_admin_password" {
-  description = "Synapse SQL admin password"
-  type        = string
   sensitive   = true
 }
-
+ variable "synapse_name" {}
 
 variable "vm_size" {
   type = string
@@ -52,11 +66,11 @@ variable "vnet_address_space" {
 
 
 variable "vm_subnet_prefix" {
-  
+
 }
 
 variable "aks_subnet_prefix" {
-  
+
 }
 
 variable "aks_vm_size" { type = string }

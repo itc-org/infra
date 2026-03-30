@@ -9,7 +9,7 @@ output "databricks_workspace_url" {
 # Data Factory
 ############################################
 output "adf_name" {
-  value = try(module.data_factory["data_factory"].data_factory_name, null)
+  value = try(module.datafactory["datafactory"].data_factory_name, null)
 }
 
 ############################################
@@ -42,4 +42,8 @@ output "eventhub_namespace" {
 ############################################
 output "synapse_workspace_id" {
   value = try(module.synapse["synapse"].workspace_id, null)
+}
+
+output "workspace_endpoint" {
+  value = try(module.synapse["synapse"].workspace_endpoint, null)
 }
