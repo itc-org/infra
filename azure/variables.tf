@@ -42,9 +42,9 @@ variable "datlake_redundancy" {}
 variable "sql_admin_login" {}
 
 variable "sql_admin_password" {
-  sensitive   = true
+  sensitive = true
 }
- variable "synapse_name" {}
+variable "synapse_name" {}
 
 #VM
 variable "vm_size" {

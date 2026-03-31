@@ -106,7 +106,7 @@ module "synapse" {
   location            = azurerm_resource_group.rg.location
   sql_admin_login     = var.sql_admin_login
   sql_admin_password  = var.sql_admin_password
-  filesystem_id = module.storage-datalake["storage-datalake"].filesystem_id
+  filesystem_id       = module.storage-datalake["storage-datalake"].filesystem_id
   tags                = local.common_tags
 }
 
@@ -162,14 +162,14 @@ module "vm" {
   source   = "./modules/vm"
   for_each = contains(var.services_to_deploy, "vm") ? { vm = true } : {}
 
-    vm_enabled = var.vm_enabled
-  vms        = var.vms
+  vm_enabled          = var.vm_enabled
+  vms                 = var.vms
   location            = azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   vnet_name           = module.network["network"].vnet_name
   subnet_prefix       = var.vm_subnet_prefix
-  admin_username = var.vm_admin_username
-  admin_password = var.vm_admin_password
+  admin_username      = var.vm_admin_username
+  admin_password      = var.vm_admin_password
 
   tags = local.common_tags
 }

@@ -27,7 +27,7 @@ datlake_redundancy   = "LRS"
 
 
 #synapse
-synapse_name = "itc-bd-ne-synapse"   #"tf-${terraform.workspace}-syn-${local.suffix}"
+synapse_name       = "itc-bd-ne-synapse" #"tf-${terraform.workspace}-syn-${local.suffix}"
 sql_admin_login    = "sqladminuser"
 sql_admin_password = "WelcomeItc#2026"
 

@@ -12,7 +12,7 @@ vm_admin_password = "Password123!"
 
 
 # Key Vault
-keyvault_enabled = true
+keyvault_enabled = false
 
 keyvaults = {
   kv1 = {}
