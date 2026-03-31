@@ -122,7 +122,7 @@ jobs:
         run: terraform plan -var='services_to_deploy=${{ steps.build.outputs.services }}' -out=tfplan
 
       - name: Upload Plan
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tfplan
           path: azure/tfplan
