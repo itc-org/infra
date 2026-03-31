@@ -8,8 +8,8 @@ on:
         description: 'Deploy Databricks'
         type: boolean
         default: false
-      data_factory:
-        description: 'Deploy Data Factory'
+      datafactory:
+        description: 'Deploy Datafactory'
         type: boolean
         default: false
       synapse:
@@ -36,11 +36,20 @@ on:
         description: 'Deploy AKS'
         type: boolean
         default: false
+      keyvault:
+        description: 'Deploy Key Vault'
+        type: boolean
+        default: false
+      storage-datalake:
+        description: 'Deploy Storage Datalake'
+        type: boolean
+        default: false
       workspace:
         description: 'Workspace'
         required: true
         type: choice
-        options:        
+        options:   
+          - java     
           - ds
           - do
           - bd
@@ -87,13 +96,15 @@ jobs:
           SERVICES="["
           
           [ "${{ inputs.databricks }}" == "true" ] && SERVICES="$SERVICES\"databricks\","
-          [ "${{ inputs.data_factory }}" == "true" ] && SERVICES="$SERVICES\"data_factory\","
+          [ "${{ inputs.datafactory }}" == "true" ] && SERVICES="$SERVICES\"datafactory\","
           [ "${{ inputs.synapse }}" == "true" ] && SERVICES="$SERVICES\"synapse\","
           [ "${{ inputs.functions }}" == "true" ] && SERVICES="$SERVICES\"functions\","
           [ "${{ inputs.cosmosdb }}" == "true" ] && SERVICES="$SERVICES\"cosmosdb\","
           [ "${{ inputs.eventhub }}" == "true" ] && SERVICES="$SERVICES\"eventhub\","
           [ "${{ inputs.vm }}" == "true" ] && SERVICES="$SERVICES\"vm\","
           [ "${{ inputs.aks }}" == "true" ] && SERVICES="$SERVICES\"aks\","
+          [ "${{ inputs.keyvault }}" == "true" ] && SERVICES="$SERVICES\"keyvault\","
+          [ "${{ inputs.storage-datalake }}" == "true" ] && SERVICES="$SERVICES\"storage-datalake\","
 
           SERVICES="${SERVICES%,}]"
 

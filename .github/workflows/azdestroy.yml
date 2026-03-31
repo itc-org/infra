@@ -18,6 +18,7 @@ on:
         required: false
         type: choice
         options:
+          - java
           - ds
           - do
           - bd
@@ -28,7 +29,7 @@ on:
         description: "Destroy Databricks"
         type: boolean
         default: false
-      data_factory:
+      datafactory:
         description: "Destroy Data Factory"
         type: boolean
         default: false
@@ -54,6 +55,15 @@ on:
         default: false
       aks:
         description: "Destroy AKS"
+        type: boolean
+        default: false
+      keyvault:
+        description: 'Destroy Key Vault'
+        type: boolean
+        default: false
+
+      storage-datalake:
+        description: 'Destroy Storage Datalake'
         type: boolean
         default: false
 
@@ -94,13 +104,15 @@ jobs:
         run: |
           SERVICES="["
           [ "${{ inputs.databricks }}" == "true" ] && SERVICES="$SERVICES\"databricks\","
-          [ "${{ inputs.data_factory }}" == "true" ] && SERVICES="$SERVICES\"data_factory\","
+          [ "${{ inputs.datafactory }}" == "true" ] && SERVICES="$SERVICES\"datafactory\","
           [ "${{ inputs.synapse }}" == "true" ] && SERVICES="$SERVICES\"synapse\","
           [ "${{ inputs.functions }}" == "true" ] && SERVICES="$SERVICES\"functions\","
           [ "${{ inputs.cosmosdb }}" == "true" ] && SERVICES="$SERVICES\"cosmosdb\","
           [ "${{ inputs.eventhub }}" == "true" ] && SERVICES="$SERVICES\"eventhub\","
           [ "${{ inputs.vm }}" == "true" ] && SERVICES="$SERVICES\"vm\","
           [ "${{ inputs.aks }}" == "true" ] && SERVICES="$SERVICES\"aks\","
+          [ "${{ inputs.keyvault }}" == "true" ] && SERVICES="$SERVICES\"keyvault\","
+          [ "${{ inputs.storage-datalake }}" == "true" ] && SERVICES="$SERVICES\"storage-datalake\","
 
           SERVICES="${SERVICES%,}]"
 

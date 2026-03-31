@@ -142,7 +142,7 @@ module "eventhub" {
 
 
 ########################################
-# Network (Shared)
+# Vnet
 ########################################
 module "network" {
   source   = "./modules/network"
@@ -150,7 +150,7 @@ module "network" {
 
   vnet_name           = "terraform-vnet-${local.suffix}"
   location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = data.azurerm_resource_group.rg.name
   vnet_address_space  = var.vnet_address_space
   tags                = local.common_tags
 }
