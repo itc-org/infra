@@ -164,7 +164,7 @@ module "vm" {
 
   name                = "terraform-vm-${local.suffix}"
   location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = data.azurerm_resource_group.rg.name
   vnet_name           = module.network["network"].vnet_name
   subnet_prefix       = var.vm_subnet_prefix
 

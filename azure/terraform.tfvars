@@ -33,7 +33,7 @@ sql_admin_password = "WelcomeItc#2026"
 
 
 
-
+#VM
 vm_size           = "Standard_B2s"
 vm_admin_username = "itcsme"
 vm_admin_password = "Terraform123!"
