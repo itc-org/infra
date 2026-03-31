@@ -24,7 +24,6 @@ on:
           - bd
           - pmo
 
-
       databricks:
         description: "Destroy Databricks"
         type: boolean
@@ -50,7 +49,7 @@ on:
         type: boolean
         default: false
       vm:
-        description: "Destroy Virtual Machine"
+        description: "Destroy VM"
         type: boolean
         default: false
       aks:
@@ -61,7 +60,6 @@ on:
         description: 'Destroy Key Vault'
         type: boolean
         default: false
-
       storage-datalake:
         description: 'Destroy Storage Datalake'
         type: boolean
@@ -70,8 +68,11 @@ on:
 permissions:
   contents: read
 
+########################################
+# JOB 1 → PREP (same logic, no destroy yet)
+########################################
 jobs:
-  terraform:
+  terraform-plan:
     runs-on: ubuntu-latest
 
     defaults:
@@ -96,9 +97,6 @@ jobs:
       - name: Terraform Init
         run: terraform init -reconfigure
 
-      ########################################
-      # Build services list
-      ########################################
       - name: Build services list
         id: build
         run: |
@@ -123,9 +121,64 @@ jobs:
 
           echo "services=$SERVICES" >> $GITHUB_OUTPUT
 
-      ########################################
-      # Terraform Destroy
-      ########################################
+      - name: Save context
+        run: echo "Ready for destroy"
+
+########################################
+# JOB 2 → DESTROY (WITH APPROVAL)
+########################################
+  terraform-destroy:
+    needs: terraform-plan
+    runs-on: ubuntu-latest
+
+    environment: tf-approve  
+
+    defaults:
+      run:
+        working-directory: azure
+
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init -reconfigure
+
+      - name: Build services list
+        id: build
+        run: |
+          SERVICES="["
+          [ "${{ inputs.databricks }}" == "true" ] && SERVICES="$SERVICES\"databricks\","
+          [ "${{ inputs.datafactory }}" == "true" ] && SERVICES="$SERVICES\"datafactory\","
+          [ "${{ inputs.synapse }}" == "true" ] && SERVICES="$SERVICES\"synapse\","
+          [ "${{ inputs.functions }}" == "true" ] && SERVICES="$SERVICES\"functions\","
+          [ "${{ inputs.cosmosdb }}" == "true" ] && SERVICES="$SERVICES\"cosmosdb\","
+          [ "${{ inputs.eventhub }}" == "true" ] && SERVICES="$SERVICES\"eventhub\","
+          [ "${{ inputs.vm }}" == "true" ] && SERVICES="$SERVICES\"vm\","
+          [ "${{ inputs.aks }}" == "true" ] && SERVICES="$SERVICES\"aks\","
+          [ "${{ inputs.keyvault }}" == "true" ] && SERVICES="$SERVICES\"keyvault\","
+          [ "${{ inputs.storage-datalake }}" == "true" ] && SERVICES="$SERVICES\"storage-datalake\","
+
+          SERVICES="${SERVICES%,}]"
+
+          if [ "$SERVICES" == "[" ]; then
+            echo "Error: No services selected for destroy."
+            exit 1
+          fi
+
+          echo "services=$SERVICES" >> $GITHUB_OUTPUT
+
       - name: Terraform Destroy
         shell: bash
         run: |
@@ -152,5 +205,4 @@ jobs:
 
             echo "Destroying workspace: ${{ inputs.workspace }}"
             terraform workspace select "${{ inputs.workspace }}"
-            terraform destroy -auto-approve -var='services_to_deploy=${{ steps.build.outputs.services }}'
-          fi
+            terraform destroy -auto-approve -var='services_to_destroy=${{ steps.build.outputs.services }}'

@@ -58,8 +58,11 @@ on:
 permissions:
   contents: read
 
+########################################
+# JOB 1 → PLAN
+########################################
 jobs:
-  terraform:
+  terraform-plan:
     runs-on: ubuntu-latest
 
     defaults:
@@ -87,9 +90,6 @@ jobs:
           terraform workspace select ${{ inputs.workspace }} || \
           terraform workspace new ${{ inputs.workspace }}
 
-      ########################################
-      # Build services list (ONLY selected)
-      ########################################
       - name: Build services list
         id: build
         run: |
@@ -120,6 +120,52 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan -var='services_to_deploy=${{ steps.build.outputs.services }}' -out=tfplan
+
+      - name: Upload Plan
+        uses: actions/upload-artifact@v3
+        with:
+          name: tfplan
+          path: azure/tfplan
+
+########################################
+# JOB 2 → APPLY (WITH APPROVAL)
+########################################
+  terraform-apply:
+    needs: terraform-plan
+    runs-on: ubuntu-latest
+
+    environment: tf-approve  
+
+    defaults:
+      run:
+        working-directory: azure
+
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Select or Create Workspace
+        run: |
+          terraform workspace select ${{ inputs.workspace }} || \
+          terraform workspace new ${{ inputs.workspace }}
+
+      - name: Download Plan
+        uses: actions/download-artifact@v3
+        with:
+          name: tfplan
+          path: azure
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
