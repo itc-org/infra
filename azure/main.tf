@@ -148,7 +148,7 @@ module "network" {
   source   = "./modules/network"
   for_each = local.needs_network ? { network = true } : {}
 
-  vnet_name           = "terraform-vnet-${local.suffix}"
+  vnet_name           = "tf-${terraform.workspace}-vnet-${local.suffix}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   vnet_address_space  = var.vnet_address_space
@@ -162,7 +162,7 @@ module "vm" {
   source   = "./modules/vm"
   for_each = contains(var.services_to_deploy, "vm") ? { vm = true } : {}
 
-  name                = "terraform-vm-${local.suffix}"
+  name                = "tf-${terraform.workspace}-vm-${local.suffix}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   vnet_name           = module.network["network"].vnet_name
