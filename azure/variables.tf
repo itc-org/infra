@@ -46,6 +46,7 @@ variable "sql_admin_password" {
 }
  variable "synapse_name" {}
 
+#VM
 variable "vm_size" {
   type = string
 }
@@ -61,6 +62,16 @@ variable "vm_admin_password" {
 
 variable "vnet_address_space" {
   type = list(string)
+}
+
+variable "vm_enabled" {
+  type = bool
+}
+
+variable "vms" {
+  type = map(object({
+    size = string
+  }))
 }
 
 

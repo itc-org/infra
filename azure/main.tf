@@ -162,13 +162,12 @@ module "vm" {
   source   = "./modules/vm"
   for_each = contains(var.services_to_deploy, "vm") ? { vm = true } : {}
 
-  name                = "tf-${terraform.workspace}-vm-${local.suffix}"
+    vm_enabled = var.vm_enabled
+  vms        = var.vms
   location            = azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   vnet_name           = module.network["network"].vnet_name
   subnet_prefix       = var.vm_subnet_prefix
-
-  vm_size        = var.vm_size
   admin_username = var.vm_admin_username
   admin_password = var.vm_admin_password
 

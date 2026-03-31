@@ -33,10 +33,7 @@ sql_admin_password = "WelcomeItc#2026"
 
 
 
-#VM
-vm_size           = "Standard_B2s"
-vm_admin_username = "itcsme"
-vm_admin_password = "Terraform123!"
+
 
 vnet_address_space = ["10.0.0.0/16"]
 vm_subnet_prefix   = ["10.0.1.0/24"]

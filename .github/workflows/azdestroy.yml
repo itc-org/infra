@@ -193,7 +193,7 @@ jobs:
               if [ -n "$ws" ] && [ "$ws" != "default" ]; then
                 echo "Switching to workspace: $ws"
                 terraform workspace select "$ws"
-                terraform destroy -auto-approve -var='services_to_deploy=${{ steps.build.outputs.services }}'
+                terraform destroy -auto-approve -var='services_to_destroy=${{ steps.build.outputs.services }}'
               fi
             done
 
