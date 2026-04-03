@@ -3,6 +3,9 @@ name: Deploy Java
 on:
   workflow_dispatch
 
+permissions:
+  contents: read 
+  
 jobs:
   deploy:
     uses: itc-org/infra-templates/.github/workflows/deploy-template.yml@main
