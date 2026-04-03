@@ -70,15 +70,13 @@ variable "vm_enabled" {
 
 variable "vms" {
   type = map(object({
-    size = string
+    size          = string
+    subnet_prefix = list(string)
   }))
 }
 
 
 
-variable "vm_subnet_prefix" {
-
-}
 
 variable "aks_subnet_prefix" {
 

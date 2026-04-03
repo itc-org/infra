@@ -1,7 +1,7 @@
 variable "location" { type = string }
 variable "resource_group_name" { type = string }
 variable "vnet_name" { type = string }
-variable "subnet_prefix" { type = list(string) }
+
 
 variable "admin_username" { type = string }
 variable "admin_password" {
@@ -21,6 +21,11 @@ variable "vm_enabled" {
 
 variable "vms" {
   type = map(object({
-    size = string
+    size          = string
+    subnet_prefix = list(string)
   }))
+}
+
+variable "subnet_ids" {
+  type = map(string)
 }

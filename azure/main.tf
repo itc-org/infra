@@ -152,24 +152,27 @@ module "network" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   vnet_address_space  = var.vnet_address_space
-  tags                = local.common_tags
+  vms = var.vms
+  tags                = local.common_tags  
 }
 
 ########################################
 # VM
 ########################################
 module "vm" {
-  source   = "./modules/vm"
+  source   = "./modules/vm"  
   for_each = contains(var.services_to_deploy, "vm") ? { vm = true } : {}
 
   vm_enabled          = var.vm_enabled
   vms                 = var.vms
   location            = azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
-  vnet_name           = module.network["network"].vnet_name
-  subnet_prefix       = var.vm_subnet_prefix
-  admin_username      = var.vm_admin_username
-  admin_password      = var.vm_admin_password
+
+  vnet_name  = module.network["network"].vnet_name
+  subnet_ids = module.network["network"].subnet_ids   # ✅ KEEP THIS
+
+  admin_username = var.vm_admin_username
+  admin_password = var.vm_admin_password
 
   tags = local.common_tags
 }

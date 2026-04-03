@@ -36,7 +36,7 @@ sql_admin_password = "WelcomeItc#2026"
 
 
 vnet_address_space = ["10.0.0.0/16"]
-vm_subnet_prefix   = ["10.0.1.0/24"]
+
 aks_subnet_prefix  = ["10.0.2.0/24"]
 
 aks_vm_size    = "Standard_DS2_v2"
