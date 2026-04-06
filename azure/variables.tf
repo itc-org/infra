@@ -1,7 +1,7 @@
 #RG
-variable "resource_group_enabled" {
-  type = bool
-}
+# variable "resource_group_enabled" {
+#   type = bool
+# }
 
 
 #Virtual machines
