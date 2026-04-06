@@ -26,6 +26,7 @@ data "azurerm_client_config" "current" {}
 resource "azurerm_resource_group" "rg" {
   name     = "tf-${terraform.workspace}-rg-${local.suffix}"
   location = "northeurope"
+  tags     = local.common_tags
 }
 
 ########################################
@@ -77,7 +78,7 @@ module "vm_linux" {
 
   count = var.vm_linux_enabled && length(var.linux_vms) > 0 ? 1 : 0
 
-  vms = var.linux_vms
+  vms                 = var.linux_vms
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -86,7 +87,7 @@ module "vm_linux" {
   admin_username = var.vm_admin_username
   admin_password = var.vm_admin_password
 
-   tags = local.common_tags
+  tags = local.common_tags
 }
 
 ########################################
@@ -99,7 +100,7 @@ module "keyvault" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   tenant_id           = data.azurerm_client_config.current.tenant_id
-  tags = local.common_tags
+  tags                = local.common_tags
 
 }
 
@@ -115,9 +116,9 @@ module "aks" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
-  subnet_id = module.network[0].subnet_ids[var.aks.subnet_name]  
-  tags = local.common_tags
-  
+  subnet_id = module.network[0].subnet_ids[var.aks.subnet_name]
+  tags      = local.common_tags
+
 }
 
 
@@ -132,8 +133,8 @@ module "databricks" {
 
   databricks          = var.databricks
   location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name  
-  tags = local.common_tags
+  resource_group_name = azurerm_resource_group.rg.name
+  tags                = local.common_tags
 }
 
 
@@ -147,8 +148,8 @@ module "datafactory" {
   datafactory = var.datafactory
 
   location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name  
-  tags = local.common_tags
+  resource_group_name = azurerm_resource_group.rg.name
+  tags                = local.common_tags
 }
 
 
@@ -164,8 +165,8 @@ module "datalake" {
   datalake = var.datalake
 
   location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name   
-  tags = local.common_tags 
+  resource_group_name = azurerm_resource_group.rg.name
+  tags                = local.common_tags
 }
 
 
@@ -182,11 +183,11 @@ module "synapse" {
 
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  filesystem_ids = module.datalake[0].filesystem_ids  
+  filesystem_ids      = module.datalake[0].filesystem_ids
 
   sql_admin_username = var.synapse_sql_admin_username
   sql_admin_password = var.synapse_sql_admin_password
-  tags = local.common_tags 
+  tags               = local.common_tags
 
 }
 
@@ -213,7 +214,7 @@ module "cosmos" {
 # eventhub
 ########################################
 module "eventhub" {
-  source = "./modules/eventhub" 
+  source = "./modules/eventhub"
 
   count = var.eventhub_enabled && length(var.eventhub) > 0 ? 1 : 0
 
@@ -231,7 +232,7 @@ module "eventhub" {
 
 module "functions" {
   source = "./modules/functions"
-  count = var.functions_enabled && length(var.functions) > 0 ? 1 : 0
+  count  = var.functions_enabled && length(var.functions) > 0 ? 1 : 0
 
   functions = var.functions
 
