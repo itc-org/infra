@@ -25,4 +25,5 @@ resource "azurerm_synapse_workspace" "syn" {
   identity {
     type = "SystemAssigned"
   }
+  tags = var.tags
 }

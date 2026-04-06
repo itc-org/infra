@@ -115,7 +115,8 @@ module "aks" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
-  subnet_id = module.network[0].subnet_ids[var.aks.subnet_name]
+  subnet_id = module.network[0].subnet_ids[var.aks.subnet_name]  
+  tags = local.common_tags
   
 }
 
@@ -131,7 +132,8 @@ module "databricks" {
 
   databricks          = var.databricks
   location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg.name  
+  tags = local.common_tags
 }
 
 
@@ -145,7 +147,8 @@ module "datafactory" {
   datafactory = var.datafactory
 
   location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg.name  
+  tags = local.common_tags
 }
 
 
@@ -161,7 +164,8 @@ module "datalake" {
   datalake = var.datalake
 
   location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name  
+  resource_group_name = azurerm_resource_group.rg.name   
+  tags = local.common_tags 
 }
 
 
@@ -182,6 +186,7 @@ module "synapse" {
 
   sql_admin_username = var.synapse_sql_admin_username
   sql_admin_password = var.synapse_sql_admin_password
+  tags = local.common_tags 
 
 }
 

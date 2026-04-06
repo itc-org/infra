@@ -15,4 +15,5 @@ resource "azurerm_data_factory" "adf" {
 
   location            = var.location
   resource_group_name = var.resource_group_name
+   tags = var.tags
 }

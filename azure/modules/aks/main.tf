@@ -29,10 +29,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   identity {
     type = "SystemAssigned"
   }
-
-  ########################################
-  # ENTRA ID + KUBERNETES AUTH
-  ########################################
+ 
   azure_active_directory_role_based_access_control {
     managed = true
 
@@ -47,4 +44,5 @@ resource "azurerm_kubernetes_cluster" "aks" {
     network_plugin = "azure"
     network_policy = "azure"
   }
+  tags = var.tags
 }

@@ -17,4 +17,5 @@ resource "azurerm_databricks_workspace" "dbx" {
   resource_group_name = var.resource_group_name
 
   sku = each.value.sku
+  tags = var.tags
 }

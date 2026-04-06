@@ -22,3 +22,9 @@ variable "sql_admin_password" {
 variable "filesystem_ids" {
   type = map(string)
 }
+
+  variable "tags" {
+  type    = map(string)
+  default = {}
+}
+

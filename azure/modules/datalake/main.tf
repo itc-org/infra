@@ -23,6 +23,7 @@ resource "azurerm_storage_account" "st" {
   account_replication_type = "LRS"
 
   is_hns_enabled = true   # ✅ Data Lake Gen2
+   tags = var.tags
 }
 
 ########################################
