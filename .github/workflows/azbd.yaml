@@ -1,0 +1,13 @@
+name: bd
+
+on:
+  workflow_dispatch
+
+jobs:
+  deploy:
+    uses: itc-org/infra-templates/.github/workflows/deploy-template.yml@main
+
+    with:
+      workspace: bd
+
+    secrets: inherit

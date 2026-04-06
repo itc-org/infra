@@ -85,6 +85,8 @@ module "vm_linux" {
 
   admin_username = var.vm_admin_username
   admin_password = var.vm_admin_password
+
+   tags = local.common_tags
 }
 
 ########################################
@@ -97,6 +99,8 @@ module "keyvault" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   tenant_id           = data.azurerm_client_config.current.tenant_id
+  tags = local.common_tags
+
 }
 
 ########################################
@@ -112,6 +116,7 @@ module "aks" {
   resource_group_name = azurerm_resource_group.rg.name
 
   subnet_id = module.network[0].subnet_ids[var.aks.subnet_name]
+  
 }
 
 
