@@ -10,7 +10,7 @@ synapse_enabled     = false #must enable datalake
 cosmos_enabled      = false
 eventhub_enabled    = false
 functions_enabled   = false
-storage_enabled     = true
+storage_enabled     = false
 
 
 vnet_address_space = [
