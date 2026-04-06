@@ -1,3 +1,9 @@
+#RG
+variable "resource_group_enabled" {
+  type = bool
+}
+
+
 #Virtual machines
 variable "network_enabled" {
   type = bool

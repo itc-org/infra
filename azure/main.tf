@@ -29,7 +29,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 ########################################
-# NETWORK (controlled via tfvars)
+# NETWORK 
 ########################################
 module "network" {
   source = "./modules/network"
