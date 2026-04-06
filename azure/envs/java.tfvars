@@ -1,6 +1,6 @@
 network_enabled     = false
 vm_enabled          = false #must enable network
-vm_linux_enabled    = false  #must enable network
+vm_linux_enabled    = false #must enable network
 aks_enabled         = false #must enable network
 keyvault_enabled    = false
 databricks_enabled  = false
@@ -10,7 +10,7 @@ synapse_enabled     = false #must enable datalake
 cosmos_enabled      = false
 eventhub_enabled    = false
 functions_enabled   = false
-storage_enabled     = false
+storage_enabled     = true
 
 
 vnet_address_space = [
