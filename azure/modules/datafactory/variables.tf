@@ -1,5 +1,5 @@
-variable "name" {
-  type = string
+variable "datafactory" {
+  type = map(any)
 }
 
 variable "location" {

@@ -1,11 +1,11 @@
-output "workspace_id" {
-  value = azurerm_synapse_workspace.syn.id
+output "synapse_names" {
+  value = {
+    for k, v in azurerm_synapse_workspace.syn : k => v.name
+  }
 }
 
-output "workspace_name" {
-  value = azurerm_synapse_workspace.syn.name
-}
-
-output "workspace_endpoint" {
-  value = azurerm_synapse_workspace.syn.connectivity_endpoints
+output "principal_ids" {
+  value = {
+    for k, v in azurerm_synapse_workspace.syn : k => v.identity[0].principal_id
+  }
 }

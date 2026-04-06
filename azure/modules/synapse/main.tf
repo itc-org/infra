@@ -1,45 +1,28 @@
-#enable datalake (storage account) and file system if datalake doesnt exist already
+resource "random_string" "suffix" {
+  length  = 4
+  special = false
+  upper   = false
+}
 
-# ############################################
-# # Storage Account 
-# ############################################
-# resource "azurerm_storage_account" "syn_storage" {
-#   name                     = lower(replace(var.name, "-", "")) # must be 3-24 lowercase
-#   resource_group_name      = var.resource_group_name
-#   location                 = var.location
-#   account_tier             = "Standard"
-#   account_replication_type = "LRS"
-#   is_hns_enabled           = true
+locals {
+  suffix = random_string.suffix.result
+}
 
-#   tags = var.tags
-# }
-
-# ############################################
-# # Data Lake Gen2 Filesystem
-# ############################################
-# resource "azurerm_storage_data_lake_gen2_filesystem" "syn_fs" {
-#   name               = "synfs"
-#   storage_account_id = azurerm_storage_account.syn_storage.id
-# }
-
-############################################
-# Synapse Workspace
-############################################
 resource "azurerm_synapse_workspace" "syn" {
-  name                = var.name
-  resource_group_name = var.resource_group_name
+  for_each = var.synapse  
+
+  name = "tf-${terraform.workspace}-${each.key}-syn-${local.suffix}"
+
   location            = var.location
+  resource_group_name = var.resource_group_name
 
-
-  storage_data_lake_gen2_filesystem_id = var.filesystem_id
-  managed_virtual_network_enabled = false
-
-  sql_administrator_login          = var.sql_admin_login
+  sql_administrator_login          = var.sql_admin_username
   sql_administrator_login_password = var.sql_admin_password
+
+
+  storage_data_lake_gen2_filesystem_id = values(var.filesystem_ids)[0]
 
   identity {
     type = "SystemAssigned"
   }
-
-  tags = var.tags
 }

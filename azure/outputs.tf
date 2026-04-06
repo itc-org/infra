@@ -1,49 +1,101 @@
-############################################
-# Databricks
-############################################
-output "databricks_workspace_url" {
-  value = try(module.databricks["databricks"].workspace_url, null)
+########################################
+# NETWORK OUTPUTS
+########################################
+output "vnet_name" {
+  value       = var.network_enabled ? module.network[0].vnet_name : null
+  description = "VNet name"
 }
 
-############################################
-# Data Factory
-############################################
-output "adf_name" {
-  value = try(module.datafactory["datafactory"].data_factory_name, null)
+output "subnet_ids" {
+  value       = var.network_enabled ? module.network[0].subnet_ids : null
+  description = "Map of subnet IDs"
 }
 
-############################################
-# Functions
-############################################
-output "function_app_name" {
-  value = try(module.functions["functions"].function_app_name, null)
+########################################
+# VM OUTPUTS
+########################################
+output "vm_names" {
+  value = var.vm_enabled ? module.vm[0].vm_names : []
 }
 
-output "function_app_default_hostname" {
-  value = try(module.functions["functions"].default_hostname, null)
+output "linux_vm_names" {
+  value = var.vm_linux_enabled ? module.vm_linux[0].vm_names : []
 }
 
-############################################
-# Cosmos DB
-############################################
-output "cosmosdb_endpoint" {
-  value = try(module.cosmosdb["cosmosdb"].cosmos_account_endpoint, null)
+output "vm_private_ips" {
+  value = var.vm_enabled ? module.vm[0].private_ips : []
 }
 
-############################################
-# EventHub
-############################################
-output "eventhub_namespace" {
-  value = try(module.eventhub["eventhub"].eventhub_namespace_name, null)
+output "linux_vm_private_ips" {
+  value = var.vm_linux_enabled ? module.vm_linux[0].private_ips : []
 }
 
-############################################
-# Synapse
-############################################
-output "synapse_workspace_id" {
-  value = try(module.synapse["synapse"].workspace_id, null)
+
+output "vm_public_ips" {
+  value = var.vm_enabled ? module.vm[0].public_ips : []
 }
 
-output "workspace_endpoint" {
-  value = try(module.synapse["synapse"].workspace_endpoint, null)
+output "linux_vm_public_ips" {  
+  value = var.vm_linux_enabled ? module.vm_linux[0].public_ips : []
+}
+
+#Keyvault
+output "keyvault_name" {
+  value = var.keyvault_enabled ? module.keyvault[0].keyvault_name : null
+}
+
+#databricks
+output "databricks_names" {
+  value = var.databricks_enabled ? module.databricks[0].databricks_names : {}
+}
+
+output "databricks_urls" {
+  value = var.databricks_enabled ? module.databricks[0].workspace_urls : {}
+}
+
+#datafactory
+output "datafactory_names" {
+  value = var.datafactory_enabled ? module.datafactory[0].datafactory_names : {}
+}
+
+#datalake
+
+output "datalake_storage_accounts" {
+  value = var.datalake_enabled ? module.datalake[0].storage_account_names : {}
+}
+
+output "datalake_filesystems" {
+  value = var.datalake_enabled ? module.datalake[0].filesystem_names : {}
+}
+
+
+#Cosmosdb
+
+output "cosmos_accounts" {
+  value = var.cosmos_enabled ? module.cosmos[0].cosmos_account_names : {}
+}
+
+output "cosmos_databases" {
+  value = var.cosmos_enabled ? module.cosmos[0].cosmos_db_names : {}
+}
+
+#eventhub
+
+output "eventhub_namespaces" {
+  value = var.eventhub_enabled ? module.eventhub[0].eventhub_namespaces : {}
+}
+
+output "eventhub_names" {
+  value = var.eventhub_enabled ? module.eventhub[0].eventhub_names : {}
+}
+
+#fucntions
+
+output "function_names" {
+  value = var.functions_enabled ? module.functions[0].function_names : {}
+}
+
+#storage
+output "storage_accounts" {
+  value = var.storage_enabled ? module.storage[0].storage_account_names : {}
 }

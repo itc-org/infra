@@ -1,12 +1,12 @@
-variable "name" {
+variable "cosmos" {
+  type = map(any)
+}
+
+variable "location" {
   type = string
 }
 
 variable "resource_group_name" {
-  type = string
-}
-
-variable "location" {
   type = string
 }
 

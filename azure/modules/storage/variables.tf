@@ -1,4 +1,4 @@
-variable "eventhub" {
+variable "storage" {
   type = map(any)
 }
 

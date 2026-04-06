@@ -1,8 +1,21 @@
+resource "random_string" "suffix" {
+  length  = 4
+  special = false
+  upper   = false
+}
+
+locals {
+  suffix = random_string.suffix.result
+}
+
 ############################################
-# Storage Account (Required for Functions)
+# STORAGE ACCOUNT (REQUIRED)
 ############################################
 resource "azurerm_storage_account" "func_storage" {
-  name                     = lower(replace(var.name, "-", "")) # must be lowercase, no hyphens
+  for_each = var.functions
+
+  name = lower(replace("tf${terraform.workspace}${each.key}${local.suffix}", "-", ""))
+
   resource_group_name      = var.resource_group_name
   location                 = var.location
   account_tier             = "Standard"
@@ -12,29 +25,35 @@ resource "azurerm_storage_account" "func_storage" {
 }
 
 ############################################
-# App Service Plan (Consumption)
+# APP SERVICE PLAN (CONSUMPTION)
 ############################################
 resource "azurerm_service_plan" "func_plan" {
-  name                = "${var.name}-plan"
+  for_each = var.functions
+
+  name                = "tf-${terraform.workspace}-${each.key}-plan-${local.suffix}"
   resource_group_name = var.resource_group_name
   location            = var.location
-  os_type             = "Linux"
-  sku_name            = "Y1" # Consumption plan
+
+  os_type  = "Linux"
+  sku_name = "Y1"
 
   tags = var.tags
 }
 
 ############################################
-# Function App
+# FUNCTION APP
 ############################################
 resource "azurerm_linux_function_app" "func" {
-  name                = var.name
+  for_each = var.functions
+
+  name = "tf-${terraform.workspace}-${each.key}-func-${local.suffix}"
+
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  service_plan_id            = azurerm_service_plan.func_plan.id
-  storage_account_name       = azurerm_storage_account.func_storage.name
-  storage_account_access_key = azurerm_storage_account.func_storage.primary_access_key
+  service_plan_id            = azurerm_service_plan.func_plan[each.key].id
+  storage_account_name       = azurerm_storage_account.func_storage[each.key].name
+  storage_account_access_key = azurerm_storage_account.func_storage[each.key].primary_access_key
 
   site_config {}
 

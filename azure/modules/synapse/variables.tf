@@ -1,18 +1,16 @@
-variable "name" {
-  type = string
+variable "synapse" {
+  type = map(any)
 }
 
 variable "location" {
   type = string
 }
 
-variable "filesystem_id" {}
-
 variable "resource_group_name" {
   type = string
 }
 
-variable "sql_admin_login" {
+variable "sql_admin_username" {
   type = string
 }
 
@@ -21,10 +19,6 @@ variable "sql_admin_password" {
   sensitive = true
 }
 
-variable "tags" {
-  type    = map(string)
-  default = {}
+variable "filesystem_ids" {
+  type = map(string)
 }
-
-# variable "aad_admin_login" {}
-# variable "aad_admin_object_id" {}

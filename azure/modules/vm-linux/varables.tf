@@ -20,14 +20,10 @@ variable "tags" {
   default = {}
 }
 
-variable "vm_enabled" {
-  type = bool
-}
-
 variable "vms" {
   type = map(object({
     size        = string
-    subnet_name = string   # 🔥 changed
+    subnet_name = string
   }))
 }
 

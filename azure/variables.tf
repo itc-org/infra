@@ -1,54 +1,32 @@
+#Virtual machines
+variable "network_enabled" {
+  type = bool
+}
 
-variable "services_to_deploy" {
-  description = "List of services to deploy"
-  type        = list(string)
-  default     = []
+variable "vm_enabled" {
+  type = bool
+}
+
+variable "vm_linux_enabled" { 
+  type = bool 
 }
 
 
-#databricks
-variable "databricks_sku" {
-  description = "Databricks SKU (standard or premium)"
-  type        = string
-  default     = "standard"
+variable "vnet_address_space" {
+  type = list(string)
 }
 
-variable "managed_resource_group_name" {}
-variable "databricks_name" {}
-variable "databricks_public_network_access_enabled" {}
-
-#datafactory
-variable "datafactory_name" {}
-
-
-#Keyvault
-
-variable "key_vault_name" {}
-variable "tenant_id" {}
-variable "key_vault_sku_name" {}
-
-
-
-
-
-#Storage Account (datalake)
-variable "storage_account_name" {}
-variable "filesystem_name" {}
-variable "datalake_tier" {}
-variable "datlake_redundancy" {}
-
-
-
-variable "sql_admin_login" {}
-
-variable "sql_admin_password" {
-  sensitive = true
+variable "subnets" {
+  type = map(object({
+    address_prefix = list(string)
+  }))
 }
-variable "synapse_name" {}
 
-#VM
-variable "vm_size" {
-  type = string
+variable "vms" {
+  type = map(object({
+    size        = string
+    subnet_name = string
+  }))
 }
 
 variable "vm_admin_username" {
@@ -60,27 +38,118 @@ variable "vm_admin_password" {
   sensitive = true
 }
 
-variable "vnet_address_space" {
-  type = list(string)
-}
-
-variable "vm_enabled" {
+#Keyvault
+variable "keyvault_enabled" {
   type = bool
 }
 
-variable "vms" {
+variable "keyvault" {
+  type = object({
+    sku_name                    = string
+    enabled_for_disk_encryption = bool
+  })
+}
+
+
+variable "linux_vms" { type = map(any) }
+
+#AKS
+variable "aks_enabled" {
+  type = bool
+}
+
+variable "aks" {
+  type = object({
+    node_count  = number
+    vm_size     = string
+    subnet_name = string
+  })
+}
+
+#Databricks
+
+variable "databricks_enabled" {
+  type = bool
+}
+
+variable "databricks" {
   type = map(object({
-    size          = string
-    subnet_prefix = list(string)
+    sku = string
   }))
 }
 
+#datafactory
 
-
-
-variable "aks_subnet_prefix" {
-
+variable "datafactory_enabled" {
+  type = bool
 }
 
-variable "aks_vm_size" { type = string }
-variable "aks_node_count" { type = number }
+variable "datafactory" {
+  type = map(any)
+}
+
+#datalake
+variable "datalake_enabled" {
+  type = bool
+}
+
+variable "datalake" {
+  type = map(any)
+}
+
+
+#synapse
+
+variable "synapse_enabled" {
+  type = bool
+}
+
+variable "synapse" {
+  type = map(any)
+}
+
+variable "synapse_sql_admin_username" {
+  type = string
+}
+
+variable "synapse_sql_admin_password" {
+  type      = string
+  sensitive = true
+}
+
+#cosmos
+variable "cosmos_enabled" {
+  type = bool
+}
+
+variable "cosmos" {
+  type = map(any)
+}
+
+#eventhub
+variable "eventhub_enabled" {
+  type = bool
+}
+
+variable "eventhub" {
+  type = map(any)
+}
+
+#functions
+
+variable "functions_enabled" {
+  type = bool
+}
+
+variable "functions" {
+  type = map(any)
+}
+
+#storage account
+variable "storage_enabled" {
+  type = bool
+}
+
+variable "storage" {
+  type = map(any)
+}

@@ -1,0 +1,17 @@
+output "vm_names" {
+  value = [
+    for vm in azurerm_windows_virtual_machine.vm : vm.name
+  ]
+}
+
+output "private_ips" {
+  value = [
+    for nic in azurerm_network_interface.nic : nic.private_ip_address
+  ]
+}
+
+output "public_ips" {
+  value = [
+    for pip in azurerm_public_ip.pip : pip.ip_address
+  ]
+}

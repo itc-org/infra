@@ -16,14 +16,9 @@ locals {
     ManagedBy = "Terraform"
     tech      = terraform.workspace
   }
-
-  needs_network = (
-    contains(var.services_to_deploy, "vm") ||
-    contains(var.services_to_deploy, "aks")
-    # contains(var.services_to_deploy, "bastion") ||
-    # contains(var.services_to_deploy, "private_endpoint")
-  )
 }
+
+data "azurerm_client_config" "current" {}
 
 ########################################
 # Resource Group
@@ -31,145 +26,41 @@ locals {
 resource "azurerm_resource_group" "rg" {
   name     = "tf-${terraform.workspace}-rg-${local.suffix}"
   location = "northeurope"
-  tags     = local.common_tags
 }
 
 ########################################
-# Modules 
-########################################
-
-#change data to "tf-${terraform.workspace}-rg-${local.suffix}" or rm because its already being created on line 31
-#when applying new use azurerm_resource_group.rg.name
-data "azurerm_resource_group" "rg" {
-  name = "Itc_Bigdata"
-}
-
-module "databricks" {
-  source   = "./modules/databricks"
-  for_each = contains(var.services_to_deploy, "databricks") ? { databricks = true } : {}
-
-  name                                     = var.databricks_name
-  resource_group_name                      = data.azurerm_resource_group.rg.name
-  location                                 = azurerm_resource_group.rg.location
-  managed_resource_group_name              = var.managed_resource_group_name
-  databricks_public_network_access_enabled = var.databricks_public_network_access_enabled
-  sku                                      = var.databricks_sku
-  tags                                     = local.common_tags
-
-}
-
-module "datafactory" {
-  source   = "./modules/datafactory"
-  for_each = contains(var.services_to_deploy, "datafactory") ? { datafactory = true } : {}
-
-  name                = var.datafactory_name
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  tags                = local.common_tags
-}
-
-module "keyvault" {
-  source   = "./modules/keyvault"
-  for_each = contains(var.services_to_deploy, "keyvault") ? { keyvault = true } : {}
-
-  name                = var.key_vault_name
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  tenant_id           = var.tenant_id
-  sku_name            = var.key_vault_sku_name
-
-  tags = local.common_tags
-}
-
-module "storage-datalake" {
-  source   = "./modules/storage-datalake"
-  for_each = contains(var.services_to_deploy, "storage-datalake") ? { storage-datalake = true } : {}
-
-  name                = var.storage_account_name
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  datalake_tier       = var.datalake_tier
-  datlake_redundancy  = var.datlake_redundancy
-  filesystem_name     = var.filesystem_name
-
-  tags = local.common_tags
-}
-
-
-
-module "synapse" {
-  source   = "./modules/synapse"
-  for_each = contains(var.services_to_deploy, "synapse") ? { synapse = true } : {}
-
-  name                = var.synapse_name
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  sql_admin_login     = var.sql_admin_login
-  sql_admin_password  = var.sql_admin_password
-  filesystem_id       = module.storage-datalake["storage-datalake"].filesystem_id
-  tags                = local.common_tags
-}
-
-module "functions" {
-  source   = "./modules/functions"
-  for_each = contains(var.services_to_deploy, "functions") ? { functions = true } : {}
-
-  name                = "terraform-functions-${local.suffix}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  tags                = local.common_tags
-}
-
-module "cosmosdb" {
-  source   = "./modules/cosmosdb"
-  for_each = contains(var.services_to_deploy, "cosmosdb") ? { cosmosdb = true } : {}
-
-  name                = "terraform-cosmos-${local.suffix}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  tags                = local.common_tags
-}
-
-module "eventhub" {
-  source   = "./modules/eventhub"
-  for_each = contains(var.services_to_deploy, "eventhub") ? { eventhub = true } : {}
-
-  name                = "terraform-eventhub-${local.suffix}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  tags                = local.common_tags
-}
-
-
-########################################
-# Vnet
+# NETWORK (controlled via tfvars)
 ########################################
 module "network" {
-  source   = "./modules/network"
-  for_each = local.needs_network ? { network = true } : {}
+  source = "./modules/network"
+
+  count = var.network_enabled ? 1 : 0
 
   vnet_name           = "tf-${terraform.workspace}-vnet-${local.suffix}"
   location            = azurerm_resource_group.rg.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  vnet_address_space  = var.vnet_address_space
-  vms = var.vms
-  tags                = local.common_tags  
+  resource_group_name = azurerm_resource_group.rg.name
+
+  vnet_address_space = var.vnet_address_space
+  subnets            = var.subnets
+
+  tags = local.common_tags
 }
 
 ########################################
-# VM
+# VM windows
 ########################################
 module "vm" {
-  source   = "./modules/vm"  
-  for_each = contains(var.services_to_deploy, "vm") ? { vm = true } : {}
+  source = "./modules/vm"
 
-  vm_enabled          = var.vm_enabled
-  vms                 = var.vms
+  count = var.vm_enabled ? 1 : 0
+
+  vm_enabled = var.vm_enabled
+  vms        = var.vms
+
   location            = azurerm_resource_group.rg.location
-  resource_group_name = data.azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg.name
 
-  vnet_name  = module.network["network"].vnet_name
-  subnet_ids = module.network["network"].subnet_ids   # ✅ KEEP THIS
+  subnet_ids = module.network[0].subnet_ids # assumes network enabled
 
   admin_username = var.vm_admin_username
   admin_password = var.vm_admin_password
@@ -177,22 +68,183 @@ module "vm" {
   tags = local.common_tags
 }
 
+########################################
+# VM Linux
+########################################
+
+module "vm_linux" {
+  source = "./modules/vm-linux"
+
+  count = var.vm_linux_enabled && length(var.linux_vms) > 0 ? 1 : 0
+
+  vms = var.linux_vms
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  subnet_ids = module.network[0].subnet_ids
+
+  admin_username = var.vm_admin_username
+  admin_password = var.vm_admin_password
+}
+
+########################################
+# KEY VAULT
+########################################
+module "keyvault" {
+  source              = "./modules/keyvault"
+  count               = var.keyvault_enabled ? 1 : 0
+  keyvault            = var.keyvault
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+}
 
 ########################################
 # AKS
 ########################################
 module "aks" {
-  source   = "./modules/aks"
-  for_each = contains(var.services_to_deploy, "aks") ? { aks = true } : {}
+  source = "./modules/aks"
 
-  name                = "terraform-aks-${local.suffix}"
+  count = var.aks_enabled ? 1 : 0
+  aks   = var.aks
+
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  vnet_name           = module.network["network"].vnet_name
-  subnet_prefix       = var.aks_subnet_prefix
 
-  vm_size    = var.aks_vm_size
-  node_count = var.aks_node_count
+  subnet_id = module.network[0].subnet_ids[var.aks.subnet_name]
+}
+
+
+########################################
+# databricks
+########################################
+
+module "databricks" {
+  source = "./modules/databricks"
+
+  count = var.databricks_enabled ? 1 : 0
+
+  databricks          = var.databricks
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+
+########################################
+# datafactory
+########################################
+module "datafactory" {
+  source = "./modules/datafactory"
+  count  = var.datafactory_enabled && length(var.datafactory) > 0 ? 1 : 0
+
+  datafactory = var.datafactory
+
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+
+
+########################################
+# datalake
+########################################
+module "datalake" {
+  source = "./modules/datalake"
+
+  count = var.datalake_enabled && length(var.datalake) > 0 ? 1 : 0
+
+  datalake = var.datalake
+
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name  
+}
+
+
+########################################
+# synapse
+########################################
+
+module "synapse" {
+  source = "./modules/synapse"
+
+  count = var.synapse_enabled && length(var.synapse) > 0 ? 1 : 0
+
+  synapse = var.synapse
+
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  filesystem_ids = module.datalake[0].filesystem_ids  
+
+  sql_admin_username = var.synapse_sql_admin_username
+  sql_admin_password = var.synapse_sql_admin_password
+
+}
+
+########################################
+# cosmos
+########################################
+
+
+module "cosmos" {
+  source = "./modules/cosmosdb"
+
+  count = var.cosmos_enabled && length(var.cosmos) > 0 ? 1 : 0
+
+  cosmos = var.cosmos
+
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  tags = local.common_tags
+}
+
+
+########################################
+# eventhub
+########################################
+module "eventhub" {
+  source = "./modules/eventhub" 
+
+  count = var.eventhub_enabled && length(var.eventhub) > 0 ? 1 : 0
+
+  eventhub = var.eventhub
+
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  tags = local.common_tags
+}
+
+########################################
+# functions
+########################################
+
+module "functions" {
+  source = "./modules/functions"
+  count = var.functions_enabled && length(var.functions) > 0 ? 1 : 0
+
+  functions = var.functions
+
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  tags = local.common_tags
+}
+
+
+########################################
+# storage account
+########################################
+
+module "storage" {
+  source = "./modules/storage"
+
+  count = var.storage_enabled && length(var.storage) > 0 ? 1 : 0
+
+  storage = var.storage
+
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
   tags = local.common_tags
 }

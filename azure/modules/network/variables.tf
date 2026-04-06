@@ -1,13 +1,26 @@
-variable "vnet_name" {}
-variable "location" {}
-variable "resource_group_name" {}
-variable "vnet_address_space" {}
+variable "vnet_name" {
+  type = string
+}
 
-variable "vms" {
+variable "location" {
+  type = string
+}
+
+variable "resource_group_name" {
+  type = string
+}
+
+variable "vnet_address_space" {
+  type = list(string)
+}
+
+variable "subnets" {
   type = map(object({
-    size          = string
-    subnet_prefix = list(string)
+    address_prefix = list(string)
   }))
 }
 
-variable "tags" {}
+variable "tags" {
+  type    = map(string)
+  default = {}
+}

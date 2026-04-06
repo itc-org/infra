@@ -1,12 +1,11 @@
-output "eventhub_namespace_name" {
-  value = azurerm_eventhub_namespace.ns.name
+output "eventhub_namespaces" {
+  value = {
+    for k, v in azurerm_eventhub_namespace.ns : k => v.name
+  }
 }
 
-output "eventhub_name" {
-  value = azurerm_eventhub.hub.name
-}
-
-output "eventhub_connection_string" {
-  value     = azurerm_eventhub_namespace.ns.default_primary_connection_string
-  sensitive = true
+output "eventhub_names" {
+  value = {
+    for k, v in azurerm_eventhub.hub : k => v.name
+  }
 }

@@ -1,5 +1,5 @@
-variable "name" {
-  type = string
+variable "functions" {
+  type = map(any)
 }
 
 variable "location" {

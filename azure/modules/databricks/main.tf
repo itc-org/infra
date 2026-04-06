@@ -1,10 +1,20 @@
+resource "random_string" "suffix" {
+  length  = 4
+  special = false
+  upper   = false
+}
+
+locals {
+  suffix = random_string.suffix.result
+}
+
 resource "azurerm_databricks_workspace" "dbx" {
-  name                = var.name
+  for_each = var.databricks
+
+  name = "tf-${terraform.workspace}-${each.key}-dbx-${local.suffix}"
+
   location            = var.location
   resource_group_name = var.resource_group_name
-  sku                 = var.sku
-  managed_resource_group_name  = var.managed_resource_group_name
-  public_network_access_enabled = var.databricks_public_network_access_enabled  
 
-  tags = var.tags
+  sku = each.value.sku
 }
