@@ -1,4 +1,4 @@
-name: do
+name: 02-azure-do
 
 on:
   workflow_dispatch

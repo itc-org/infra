@@ -1,4 +1,4 @@
-name: java
+name: 05-azure-pmo
 
 on:
   workflow_dispatch
@@ -8,6 +8,6 @@ jobs:
     uses: itc-org/infra-templates/.github/workflows/deploy-template.yml@main
 
     with:
-      workspace: java
+      workspace: pmo
 
     secrets: inherit

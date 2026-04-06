@@ -1,4 +1,4 @@
-name: ds
+name: 04-azure-java
 
 on:
   workflow_dispatch
@@ -8,6 +8,6 @@ jobs:
     uses: itc-org/infra-templates/.github/workflows/deploy-template.yml@main
 
     with:
-      workspace: ds
+      workspace: java
 
     secrets: inherit

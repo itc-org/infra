@@ -1,4 +1,4 @@
-name: bd
+name: 01-azure-bd
 
 on:
   workflow_dispatch
