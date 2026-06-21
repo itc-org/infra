@@ -1,0 +1,2 @@
+bucket = "tfstate-euw2-ds"
+key    = "terraform.tfstate"

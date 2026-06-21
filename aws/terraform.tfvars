@@ -1,45 +1,11 @@
+# Per-account configuration lives in envs/<workspace>.tfvars
+# (bd.tfvars, ds.tfvars, java.tfvars). This root file is intentionally left
+# almost empty so a plain run deploys nothing.
+#
+#   terraform workspace select bd
+#   terraform apply -var-file=envs/bd.tfvars
+#
+# All service toggles default to false, so nothing is created unless an
+# env file enables it.
+
 aws_region = "eu-west-2"
-
-s3_bucket_prefix = "terraform-sandbox"
-
-ecs_container_image = "nginx:latest"
-
-opensearh_instance_type = "t3.small.search"
-
-##SageMaker##
-notebook_instance_type = "ml.t3.medium"
-
-
-##EC2##
-vpc_cidr_block    = "10.0.0.0/16"
-ec2_ami           = "ami-00bab898728648dab"
-ec2_instance_type = "t3.medium"
-key_name          = "terraform-keypair"
-
-
-##RDS##
-rds_db_username = "admin"
-rds_db_password = "Terraform123!"
-rds_engine      = "mysql"
-
-
-##Redshift##
-redshift_master_username = "admin"
-redshift_master_password = "Terraform123!"
-
-
-##lambda##
-lambda_role_arn = "arn:aws:iam::123456789012:role/lambda-role"
-lambda_runtime  = "python3.11"
-lambda_handler  = "lambda_function.lambda_handler"
-
-
-###SQS###
-sqs_queue_name                 = "orders"
-sqs_delay_seconds              = 0
-sqs_max_message_size           = 262144
-sqs_message_retention_seconds  = 345600
-sqs_visibility_timeout_seconds = 30
-
-##APIGW##
-apigw_count = 2

@@ -1,0 +1,22 @@
+name: 07-aws-ds
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Apply (otherwise plan only)"
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/aws-deploy-template.yml
+    with:
+      workspace: ds
+      aws_region: eu-west-2
+      role_arn: arn:aws:iam::666127452756:role/github-actions-terraform
+      apply: ${{ inputs.apply }}

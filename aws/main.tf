@@ -18,60 +18,56 @@ resource "random_string" "suffix" {
   upper   = false
 }
 
-################################
-# NETWORK AUTO-TRIGGER LOGIC
-################################
-
 locals {
-  needs_network = (
-    contains(var.services_to_deploy, "ec2") ||
-    contains(var.services_to_deploy, "eks") ||
-    contains(var.services_to_deploy, "ecs") ||
-    #contains(var.services_to_deploy, "lambda") ||  #enable if lambda should be created in vpc
-    contains(var.services_to_deploy, "rds") ||
-    #contains(var.services_to_deploy, "opensearch") ||
-    contains(var.services_to_deploy, "redshift")
-  )
+  name = "tf-${terraform.workspace}"
 }
 
-################################
-# VPC MODULE
-################################
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern: every service has an  <svc>_enabled  boolean and (where it can scale)
+# a map variable. Turn a service on with the boolean; add a map key to create
+# another instance, then re-run the pipeline.
+#
+# Scales via map keys today (modules take a name):
+#   ec2, eks, ecr, ecs, glue, sqs, apigw, bedrock_agent, bedrock_kb, s3
+# Single instance per map key but module names resources internally — adding a
+# 2nd key needs a one-line `name` input in the module to avoid clashes:
+#   rds, redshift, lambda, sns, opensearch, sagemaker
+# ─────────────────────────────────────────────────────────────────────────────
 
+################################
+# VPC MODULE  (shared network)
+################################
 module "vpc" {
   source   = "./modules/vpc"
-  for_each = local.needs_network ? { network = true } : {}
+  for_each = var.vpc_enabled ? { network = true } : {}
 
   vpc_cidr_block = var.vpc_cidr_block
-
 }
 
 ################################
 # EC2 MODULE
 ################################
-
 module "ec2" {
   source   = "./modules/ec2"
-  for_each = contains(var.services_to_deploy, "ec2") ? { ec2 = true } : {}
+  for_each = var.ec2_enabled ? var.ec2_instances : {}
 
-  ec2_name = "tf-${terraform.workspace}-ec2-${random_string.suffix.result}"
-  sg_name = "tf-${terraform.workspace}-sg-${random_string.suffix.result}"
+  ec2_name       = "${local.name}-ec2-${each.key}-${random_string.suffix.result}"
+  sg_name        = "${local.name}-sg-${each.key}-${random_string.suffix.result}"
   subnet_ids     = module.vpc["network"].public_subnet_ids
-  ami            = var.ec2_ami
-  instance_type  = var.ec2_instance_type
-  key_name       = var.key_name
-  instance_count = var.ec2_instance_count
+  ami            = each.value.ami
+  instance_type  = each.value.instance_type
+  key_name       = each.value.key_name
+  instance_count = each.value.instance_count
 }
 
 ################################
 # EKS MODULE
 ################################
-
 module "eks" {
   source   = "./modules/eks"
-  for_each = contains(var.services_to_deploy, "eks") ? { eks = true } : {}
+  for_each = var.eks_enabled ? var.eks_clusters : {}
 
-  name       = "tf-${terraform.workspace}-eks-${random_string.suffix.result}"
+  name       = "${local.name}-eks-${each.key}-${random_string.suffix.result}"
   vpc_id     = module.vpc["network"].vpc_id
   subnet_ids = module.vpc["network"].public_subnet_ids
 }
@@ -79,217 +75,191 @@ module "eks" {
 ################################
 # S3 MODULE
 ################################
-
 module "s3" {
   source   = "./modules/s3"
-  for_each = contains(var.services_to_deploy, "s3") ? { s3 = true } : {}
+  for_each = var.s3_enabled ? var.s3_buckets : {}
 
-  bucket_prefix = var.s3_bucket_prefix
-
+  bucket_prefix = each.value.bucket_prefix
 }
 
 ################################
 # RDS MODULE
 ################################
-
 module "rds" {
   source   = "./modules/rds"
-  for_each = contains(var.services_to_deploy, "rds") ? { rds = true } : {}
+  for_each = var.rds_enabled ? var.rds_instances : {}
 
   vpc_id             = module.vpc["network"].vpc_id
   private_subnet_ids = module.vpc["network"].public_subnet_ids
-  db_username        = var.rds_db_username
-  db_password        = var.rds_db_password
-  rds_engine         = var.rds_engine
+  db_username        = each.value.db_username
+  db_password        = each.value.db_password
+  rds_engine         = each.value.engine
+}
+
+################################
+# REDSHIFT MODULE
+################################
+module "redshift" {
+  source   = "./modules/redshift"
+  for_each = var.redshift_enabled ? var.redshift_clusters : {}
+
+  vpc_id     = module.vpc["network"].vpc_id
+  subnet_ids = module.vpc["network"].public_subnet_ids
+
+  master_username = each.value.master_username
+  master_password = each.value.master_password
+  node_type       = each.value.node_type
+  cluster_type    = each.value.cluster_type
+  number_of_nodes = each.value.number_of_nodes
+
+  allowed_cidr_blocks = [var.vpc_cidr_block]
 }
 
 ################################
 # LAMBDA MODULE
 ################################
-
 module "lambda" {
   source   = "./modules/lambda"
-  for_each = contains(var.services_to_deploy, "lambda") ? { lambda = true } : {}
+  for_each = var.lambda_enabled ? var.lambda_functions : {}
 
-  lambda_role_arn = var.lambda_role_arn
-  runtime         = var.lambda_runtime
-  handler         = var.lambda_handler
+  lambda_role_arn = each.value.role_arn
+  runtime         = each.value.runtime
+  handler         = each.value.handler
 }
 
 ################################
 # ECR MODULE
 ################################
-
 module "ecr" {
   source   = "./modules/ecr"
-  ecr_name = "tf-${terraform.workspace}-ecr-${random_string.suffix.result}"
-  for_each = contains(var.services_to_deploy, "ecr") ? { ecr = true } : {}
+  for_each = var.ecr_enabled ? var.ecr_repos : {}
 
-
+  ecr_name = "${local.name}-ecr-${each.key}-${random_string.suffix.result}"
 }
-
 
 ################################
 # SNS MODULE
 ################################
-
 module "sns" {
   source   = "./modules/sns"
-  for_each = contains(var.services_to_deploy, "sns") ? { sns = true } : {}
+  for_each = var.sns_enabled ? var.sns_topics : {}
 }
 
-
 ################################
-# DevOps MODULE
+# DevOps MODULE  (single chain)
 ################################
 module "codecommit" {
   source   = "./modules/devops/codecommit"
-  for_each = contains(var.services_to_deploy, "codecommit") ? { codecommit = true } : {}
+  for_each = var.codecommit_enabled ? { this = true } : {}
 }
 
 module "codebuild" {
   source          = "./modules/devops/codebuild"
-  for_each        = contains(var.services_to_deploy, "codebuild") ? { codebuild = true } : {}
-  repository_name = module.codecommit["codecommit"].repository_name
+  for_each        = var.codebuild_enabled ? { this = true } : {}
+  repository_name = module.codecommit["this"].repository_name
 }
 
 module "codepipeline" {
   source             = "./modules/devops/codepipeline"
-  for_each           = contains(var.services_to_deploy, "codepipeline") ? { codepipeline = true } : {}
-  repository_name    = module.codecommit["codecommit"].repository_name
-  build_project_name = module.codebuild["codebuild"].project_name
+  for_each           = var.codepipeline_enabled ? { this = true } : {}
+  repository_name    = module.codecommit["this"].repository_name
+  build_project_name = module.codebuild["this"].project_name
 }
 
 ################################
 # GLUE MODULE
 ################################
-
 module "glue" {
   source   = "./modules/glue"
-  for_each = contains(var.services_to_deploy, "glue") ? { glue = true } : {}  
-  s3_bucket = "tf-${terraform.workspace}-s3-${random_string.suffix.result}"
-  iam_role = "tf-${terraform.workspace}-gluerole-${random_string.suffix.result}"
-  iam_policy = "tf-${terraform.workspace}-gluepolicy-${random_string.suffix.result}"
-  catalog = "tf-${terraform.workspace}-catalog-${random_string.suffix.result}"
-  crawler = "tf-${terraform.workspace}-crawler-${random_string.suffix.result}"
-  job = "tf-${terraform.workspace}-job-${random_string.suffix.result}"
+  for_each = var.glue_enabled ? var.glue_jobs : {}
+
+  s3_bucket  = "${local.name}-s3-${each.key}-${random_string.suffix.result}"
+  iam_role   = "${local.name}-gluerole-${each.key}-${random_string.suffix.result}"
+  iam_policy = "${local.name}-gluepolicy-${each.key}-${random_string.suffix.result}"
+  catalog    = "${local.name}-catalog-${each.key}-${random_string.suffix.result}"
+  crawler    = "${local.name}-crawler-${each.key}-${random_string.suffix.result}"
+  job        = "${local.name}-job-${each.key}-${random_string.suffix.result}"
 }
 
 ################################
-# Opensearch MODULE
+# OPENSEARCH MODULE
 ################################
-
 module "opensearch" {
-  source        = "./modules/opensearch"
-  for_each      = contains(var.services_to_deploy, "opensearch") ? { opensearch = true } : {}
-  instance_type = var.opensearh_instance_type
+  source   = "./modules/opensearch"
+  for_each = var.opensearch_enabled ? var.opensearch_domains : {}
+
+  instance_type = each.value.instance_type
   region        = var.aws_region
 }
 
 ################################
-# Sagemaker MODULE
+# SAGEMAKER MODULE
 ################################
-
-
 module "sagemaker" {
-  source                 = "./modules/sagemaker"
-  for_each               = contains(var.services_to_deploy, "sagemaker") ? { sagemaker = true } : {}
-  notebook_instance_type = var.notebook_instance_type
+  source   = "./modules/sagemaker"
+  for_each = var.sagemaker_enabled ? var.sagemaker_notebooks : {}
+
+  notebook_instance_type = each.value.notebook_instance_type
 }
 
 ################################
-# Quicksight MODULE
+# QUICKSIGHT MODULE
 ################################
-
 module "quicksight" {
   source   = "./modules/quicksight"
-  for_each = contains(var.services_to_deploy, "quicksight") ? { quicksight = true } : {}
+  for_each = var.quicksight_enabled ? { this = true } : {}
 }
-
-
-################################
-# REDSHIFT MODULE
-################################
-
-module "redshift" {
-  source   = "./modules/redshift"
-  for_each = contains(var.services_to_deploy, "redshift") ? { redshift = true } : {}
-
-  vpc_id     = module.vpc["network"].vpc_id
-  subnet_ids = module.vpc["network"].public_subnet_ids
-
-  master_username = var.redshift_master_username
-  master_password = var.redshift_master_password
-
-  allowed_cidr_blocks = [var.vpc_cidr_block]
-}
-
-
 
 ################################
 # ECS MODULE
 ################################
-
-
 module "ecs" {
   source   = "./modules/ecs"
-  for_each = contains(var.services_to_deploy, "ecs") ? { ecs = true } : {}
-  ecs_name = "tf-${terraform.workspace}-ecs-${random_string.suffix.result}"
+  for_each = var.ecs_enabled ? var.ecs_clusters : {}
 
-  ##use the following when creating task definition or service
-  # vpc_id          = module.vpc["network"].vpc_id
-  # subnet_ids      = module.vpc["network"].public_subnet_ids
-  # container_image = var.ecs_container_image
-  # container_port  = 80    
+  ecs_name = "${local.name}-ecs-${each.key}-${random_string.suffix.result}"
 }
-
 
 ################################
 # SQS MODULE
 ################################
-
 module "sqs" {
   source   = "./modules/sqs"
-  for_each = contains(var.services_to_deploy, "sqs") ? { sqs = true } : {}
+  for_each = var.sqs_enabled ? var.sqs_queues : {}
 
-  queue_name                 = var.sqs_queue_name
-  delay_seconds              = var.sqs_delay_seconds
-  max_message_size           = var.sqs_max_message_size
-  message_retention_seconds  = var.sqs_message_retention_seconds
-  visibility_timeout_seconds = var.sqs_visibility_timeout_seconds
+  queue_name                 = each.key
+  delay_seconds              = each.value.delay_seconds
+  max_message_size           = each.value.max_message_size
+  message_retention_seconds  = each.value.message_retention_seconds
+  visibility_timeout_seconds = each.value.visibility_timeout_seconds
 }
-
 
 ################################
 # API GATEWAY MODULE
 ################################
-
 module "apigw" {
-  source = "./modules/apigw"
-  name = "tf-${terraform.workspace}-apigw-${random_string.suffix.result}"
-  count = contains(var.services_to_deploy, "apigw") ? var.apigw_count : 0
+  source   = "./modules/apigw"
+  for_each = var.apigw_enabled ? var.apigw_apis : {}
 
-
+  name = "${local.name}-apigw-${each.key}-${random_string.suffix.result}"
 }
-
 
 ################################
 # BEDROCK AGENT
 ################################
-
 module "bedrock_agent" {
   source   = "./modules/bedrock/agent"
-  agent_name = "tf-${terraform.workspace}-br-${random_string.suffix.result}"
-  for_each = contains(var.services_to_deploy, "bedrock-agent") ? { agent = true } : {}
-}
+  for_each = var.bedrock_agent_enabled ? var.bedrock_agents : {}
 
+  agent_name = "${local.name}-br-${each.key}-${random_string.suffix.result}"
+}
 
 ################################
 # BEDROCK KNOWLEDGE BASE
 ################################
-
 module "bedrock_kb" {
   source   = "./modules/bedrock/knowledgebase"
-  kb_name = "tf-${terraform.workspace}-kb-${random_string.suffix.result}"
-  for_each = contains(var.services_to_deploy, "bedrock-kb") ? { kb = true } : {}
+  for_each = var.bedrock_kb_enabled ? var.bedrock_kbs : {}
+
+  kb_name = "${local.name}-kb-${each.key}-${random_string.suffix.result}"
 }

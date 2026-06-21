@@ -1,10 +1,10 @@
 terraform {
+  # Partial backend: bucket/key supplied per-account at init via
+  #   terraform init -backend-config="envs/<workspace>.s3.tfbackend"
   backend "s3" {
-    bucket         = "tfstate-euw2-dev-1"
-    key            = "dev/terraform.tfstate"
-    region         = "eu-west-2"
-    dynamodb_table = "terraform-locks"
-    encrypt        = true
+    region       = "eu-west-2"
+    encrypt      = true
+    use_lockfile = true # S3 native locking (no DynamoDB)
   }
 }
 
