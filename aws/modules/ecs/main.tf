@@ -10,6 +10,26 @@ resource "random_string" "suffix" {
 
 resource "aws_ecs_cluster" "this" {
   name = var.ecs_name
+
+  setting {
+    name  = "containerInsights"
+    value = var.container_insights ? "enabled" : "disabled" # off = no CloudWatch cost
+  }
+}
+
+################################
+# Capacity providers (serverless Fargate; dev/test + budget friendly)
+# No EC2 nodes => no idle cost. You only pay when tasks run.
+################################
+resource "aws_ecs_cluster_capacity_providers" "this" {
+  cluster_name = aws_ecs_cluster.this.name
+
+  capacity_providers = var.enable_fargate_spot ? ["FARGATE", "FARGATE_SPOT"] : ["FARGATE"]
+
+  default_capacity_provider_strategy {
+    capacity_provider = var.enable_fargate_spot ? "FARGATE_SPOT" : "FARGATE" # Spot = cheapest
+    weight            = 1
+  }
 }
 
 # ################################

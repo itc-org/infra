@@ -48,9 +48,14 @@ variable "eks_enabled" {
 }
 
 variable "eks_clusters" {
-  description = "Map of EKS clusters (cluster name = map key)."
-  type        = map(object({}))
-  default     = {}
+  description = "Map of EKS clusters. Add a key for another cluster; raise desired_size to 2 for two nodes."
+  type = map(object({
+    instance_type = optional(string, "t3.medium") # moderate, cost-conscious (burstable)
+    desired_size  = optional(number, 1)            # nodes to run now (1); set 2 for two nodes
+    min_size      = optional(number, 1)
+    max_size      = optional(number, 2)            # ceiling; allows scaling up to 2
+  }))
+  default = {}
 }
 
 ########################################
@@ -216,9 +221,12 @@ variable "ecs_enabled" {
 }
 
 variable "ecs_clusters" {
-  description = "Map of ECS clusters (name = map key)."
-  type        = map(object({}))
-  default     = {}
+  description = "Map of ECS clusters (serverless Fargate; dev/test + budget friendly). name = map key."
+  type = map(object({
+    container_insights  = optional(bool, false) # keep off to save cost
+    enable_fargate_spot = optional(bool, true)   # cheapest compute for dev/test
+  }))
+  default = {}
 }
 
 ########################################

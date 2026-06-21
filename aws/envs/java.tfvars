@@ -67,7 +67,12 @@ ec2_instances = {
 # EKS  (add a key for another cluster)
 ########################################
 eks_clusters = {
-  # eks_1 = {}
+  # main = {
+  #   instance_type = "t3.medium" # moderate, cost-conscious (burstable)
+  #   desired_size  = 1           # set to 2 to run two nodes
+  #   min_size      = 1
+  #   max_size      = 2
+  # }
 }
 
 ########################################
@@ -137,7 +142,10 @@ sagemaker_notebooks = {
 # ECS
 ########################################
 ecs_clusters = {
-  # ecs_1 = {}
+  # main = {
+  #   container_insights  = false # turn on for metrics (adds CloudWatch cost)
+  #   enable_fargate_spot = true  # cheapest; set false for on-demand Fargate
+  # }
 }
 
 ########################################

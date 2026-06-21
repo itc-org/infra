@@ -69,7 +69,12 @@ module "eks" {
 
   name       = "${local.name}-eks-${each.key}-${random_string.suffix.result}"
   vpc_id     = module.vpc["network"].vpc_id
-  subnet_ids = module.vpc["network"].public_subnet_ids
+  subnet_ids = module.vpc["network"].public_subnet_ids # public subnets
+
+  instance_type = each.value.instance_type
+  desired_size  = each.value.desired_size
+  min_size      = each.value.min_size
+  max_size      = each.value.max_size
 }
 
 ################################
@@ -217,7 +222,9 @@ module "ecs" {
   source   = "./modules/ecs"
   for_each = var.ecs_enabled ? var.ecs_clusters : {}
 
-  ecs_name = "${local.name}-ecs-${each.key}-${random_string.suffix.result}"
+  ecs_name            = "${local.name}-ecs-${each.key}-${random_string.suffix.result}"
+  container_insights  = each.value.container_insights
+  enable_fargate_spot = each.value.enable_fargate_spot
 }
 
 ################################

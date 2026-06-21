@@ -16,5 +16,14 @@
 # }
 
 variable "ecs_name" {
-  
+}
+
+variable "container_insights" {
+  type    = bool
+  default = false # off keeps it cheap; enable for metrics (adds CloudWatch cost)
+}
+
+variable "enable_fargate_spot" {
+  type    = bool
+  default = true # Fargate Spot = cheapest compute, ideal for dev/test
 }
