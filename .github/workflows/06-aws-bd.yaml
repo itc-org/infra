@@ -1,12 +1,7 @@
 name: 06-aws-bd
 
 on:
-  workflow_dispatch:
-    inputs:
-      apply:
-        description: "Apply (otherwise plan only)"
-        type: boolean
-        default: false
+  workflow_dispatch
 
 permissions:
   id-token: write
@@ -14,9 +9,8 @@ permissions:
 
 jobs:
   deploy:
-    uses: ./.github/workflows/aws-deploy-template.yml
+    uses: itc-org/infra-templates/.github/workflows/aws-deploy-template.yml@main
     with:
       workspace: bd
-      aws_region: eu-west-2
       role_arn: arn:aws:iam::743737183475:role/github-actions-terraform
-      apply: ${{ inputs.apply }}
+      aws_region: eu-west-2
